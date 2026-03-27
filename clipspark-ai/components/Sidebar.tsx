@@ -1,0 +1,125 @@
+"use client";
+
+import {
+  Zap,
+  Briefcase,
+  MessageCircle,
+  FileText,
+  Search,
+  Bot,
+  Mail,
+  Sparkles,
+  Palette,
+  BarChart3,
+  TrendingUp,
+  Brain,
+  Bell,
+  Settings,
+  type LucideIcon,
+} from "lucide-react";
+
+export type NavSection =
+  | "pipeline"
+  | "linkedin"
+  | "twitter"
+  | "blog"
+  | "seo"
+  | "geo"
+  | "email"
+  | "ai-writer"
+  | "ad-creatives"
+  | "campaigns"
+  | "analytics"
+  | "optimization"
+  | "alerts"
+  | "integrations";
+
+interface NavGroup {
+  title: string;
+  items: { id: NavSection; label: string; Icon: LucideIcon }[];
+}
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    title: "Content Factory",
+    items: [
+      { id: "pipeline", label: "Content Pipeline", Icon: Zap },
+      { id: "linkedin", label: "LinkedIn Writer", Icon: Briefcase },
+      { id: "twitter", label: "X / Twitter Writer", Icon: MessageCircle },
+      { id: "blog", label: "Blog Writer", Icon: FileText },
+      { id: "seo", label: "SEO Article Writer", Icon: Search },
+      { id: "geo", label: "GEO Optimizer", Icon: Bot },
+      { id: "email", label: "Email Writer", Icon: Mail },
+      { id: "ai-writer", label: "AI Writer Studio", Icon: Sparkles },
+    ],
+  },
+  {
+    title: "Marketing Engine",
+    items: [
+      { id: "ad-creatives", label: "Ad Creatives", Icon: Palette },
+      { id: "campaigns", label: "Campaigns", Icon: BarChart3 },
+      { id: "analytics", label: "Analytics", Icon: TrendingUp },
+      { id: "optimization", label: "AI Optimizer", Icon: Brain },
+      { id: "alerts", label: "Alerts", Icon: Bell },
+      { id: "integrations", label: "Integrations", Icon: Settings },
+    ],
+  },
+];
+
+interface SidebarProps {
+  active: NavSection;
+  onNavigate: (section: NavSection) => void;
+  alertCount?: number;
+}
+
+export default function Sidebar({
+  active,
+  onNavigate,
+  alertCount,
+}: SidebarProps) {
+  return (
+    <aside className="w-64 bg-white border-r border-gray-200 min-h-screen p-4 flex flex-col shrink-0">
+      <div className="mb-6">
+        <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+          <Zap className="w-5 h-5 text-yellow-600" /> ClipSpark AI
+        </h1>
+        <p className="text-xs text-gray-500 mt-1">
+          AI Content & Marketing Factory
+        </p>
+      </div>
+      <nav className="flex-1 space-y-6 overflow-y-auto">
+        {NAV_GROUPS.map((group) => (
+          <div key={group.title}>
+            <p className="text-[10px] uppercase tracking-wider text-gray-500 mb-2 px-3">
+              {group.title}
+            </p>
+            <div className="space-y-0.5">
+              {group.items.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => onNavigate(item.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-left ${
+                    active === item.id
+                      ? "bg-blue-50 text-blue-700 font-medium"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  }`}
+                >
+                  <item.Icon className="w-4 h-4" />
+                  <span className="flex-1">{item.label}</span>
+                  {item.id === "alerts" && alertCount && alertCount > 0 ? (
+                    <span className="px-1.5 py-0.5 bg-red-600 text-white text-[10px] rounded-full min-w-[18px] text-center">
+                      {alertCount}
+                    </span>
+                  ) : null}
+                </button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </nav>
+      <div className="pt-4 border-t border-gray-200 text-xs text-gray-500">
+        One topic → 50+ content pieces
+      </div>
+    </aside>
+  );
+}
