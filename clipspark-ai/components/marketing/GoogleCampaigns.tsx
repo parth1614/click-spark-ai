@@ -82,6 +82,11 @@ function MetricCard({
 export default function GoogleCampaigns() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [customerId, setCustomerId] = useState("");
+  const [accountLabel, setAccountLabel] = useState("");
+  const [selectedAccount, setSelectedAccount] = useState("default");
+  const [availableAccounts, setAvailableAccounts] = useState<
+    Array<{ id: string; label: string; customerId: string }>
+  >([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fetched, setFetched] = useState(false);
@@ -91,9 +96,15 @@ export default function GoogleCampaigns() {
     try {
       const cached = localStorage.getItem("google_campaigns");
       if (cached) {
-        const { campaigns: c, customerId: id, fetchedAt } = JSON.parse(cached);
+        const {
+          campaigns: c,
+          customerId: id,
+          accountLabel: al,
+          fetchedAt,
+        } = JSON.parse(cached);
         setCampaigns(c);
         setCustomerId(id);
+        if (al) setAccountLabel(al);
         setLastFetched(fetchedAt);
         setFetched(true);
       }
@@ -106,7 +117,9 @@ export default function GoogleCampaigns() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch("/api/integrations/google/campaigns");
+      const res = await fetch(
+        `/api/integrations/google/campaigns?account=${selectedAccount}`,
+      );
       const data = await res.json();
       if (data.error) {
         setError(data.error);
@@ -115,6 +128,8 @@ export default function GoogleCampaigns() {
       const fetchedAt = new Date().toLocaleString();
       setCampaigns(data.campaigns || []);
       setCustomerId(data.customerId || "");
+      setAccountLabel(data.accountLabel || "");
+      if (data.availableAccounts) setAvailableAccounts(data.availableAccounts);
       setLastFetched(fetchedAt);
       setFetched(true);
       localStorage.setItem(
@@ -122,6 +137,7 @@ export default function GoogleCampaigns() {
         JSON.stringify({
           campaigns: data.campaigns || [],
           customerId: data.customerId || "",
+          accountLabel: data.accountLabel || "",
           fetchedAt,
         }),
       );
@@ -162,9 +178,8 @@ export default function GoogleCampaigns() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Google Ads</h1>
           <p className="text-sm text-gray-500 mt-1">
-            {customerId
-              ? `Customer ID: ${customerId}`
-              : "Top campaigns by spend"}
+            {accountLabel ? `${accountLabel} · ` : ""}
+            {customerId ? `ID: ${customerId}` : "Active campaigns by spend"}
             {lastFetched && (
               <span className="ml-3 inline-flex items-center gap-1 text-green-600">
                 <Wifi className="w-3 h-3" />
@@ -174,6 +189,19 @@ export default function GoogleCampaigns() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {availableAccounts.length > 1 && (
+            <select
+              value={selectedAccount}
+              onChange={(e) => setSelectedAccount(e.target.value)}
+              className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-gray-900 text-sm"
+            >
+              {availableAccounts.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.label}
+                </option>
+              ))}
+            </select>
+          )}
           {fetched && (
             <button
               onClick={clearCache}
@@ -238,7 +266,7 @@ export default function GoogleCampaigns() {
             <MetricCard
               icon={<DollarSign className="w-5 h-5 text-blue-600" />}
               label="Total Spend"
-              value={`$${totalSpend.toFixed(2)}`}
+              value={`₹${totalSpend.toFixed(2)}`}
               sub="All-time"
             />
             <MetricCard
@@ -306,7 +334,7 @@ export default function GoogleCampaigns() {
                     {[
                       {
                         label: "Spend",
-                        value: `$${c.metrics.spend.toFixed(2)}`,
+                        value: `₹${c.metrics.spend.toFixed(2)}`,
                         highlight: true,
                       },
                       {

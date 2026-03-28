@@ -239,9 +239,9 @@ export default function CampaignManager() {
                   </td>
                   <td className="p-3 text-gray-700">
                     {c.daily_budget
-                      ? `$${c.daily_budget}/day`
+                      ? `₹${c.daily_budget}/day`
                       : c.lifetime_budget
-                        ? `$${c.lifetime_budget} total`
+                        ? `₹${c.lifetime_budget} total`
                         : "—"}
                   </td>
                   <td className="p-3">

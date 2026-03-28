@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { RefreshCw, AlertCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { RefreshCw, AlertCircle, Trash2, Wifi, WifiOff } from "lucide-react";
 import { SectionHeader, EmptyState, GenerateButton } from "@/components/shared";
 
 interface CampaignMetrics {
@@ -66,6 +66,33 @@ export default function MetaCampaigns() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [days, setDays] = useState("30");
+  const [fetched, setFetched] = useState(false);
+  const [lastFetched, setLastFetched] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem("meta_campaigns");
+      if (cached) {
+        const {
+          account: a,
+          campaigns: c,
+          totals: t,
+          dateRange: dr,
+          availableAccounts: aa,
+          fetchedAt,
+        } = JSON.parse(cached);
+        setAccount(a);
+        setCampaigns(c);
+        setTotals(t);
+        setDateRange(dr);
+        if (aa) setAvailableAccounts(aa);
+        setLastFetched(fetchedAt);
+        setFetched(true);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const fetchCampaigns = async () => {
     setLoading(true);
@@ -84,6 +111,20 @@ export default function MetaCampaigns() {
       setTotals(data.totals);
       setDateRange(data.dateRange);
       if (data.availableAccounts) setAvailableAccounts(data.availableAccounts);
+      const fetchedAt = new Date().toLocaleString();
+      setLastFetched(fetchedAt);
+      setFetched(true);
+      localStorage.setItem(
+        "meta_campaigns",
+        JSON.stringify({
+          account: data.account,
+          campaigns: data.campaigns,
+          totals: data.totals,
+          dateRange: data.dateRange,
+          availableAccounts: data.availableAccounts || [],
+          fetchedAt,
+        }),
+      );
     } catch (e) {
       setError("Failed to connect to Meta API");
       console.error(e);
@@ -92,12 +133,32 @@ export default function MetaCampaigns() {
     }
   };
 
+  const clearCache = () => {
+    localStorage.removeItem("meta_campaigns");
+    setAccount(null);
+    setCampaigns([]);
+    setTotals(null);
+    setDateRange(null);
+    setFetched(false);
+    setLastFetched(null);
+  };
+
   return (
     <div>
       <SectionHeader
         icon={<RefreshCw className="w-5 h-5 text-blue-600" />}
         title="Meta Ad Campaigns"
-        description={`Live data from your Meta Ad Account${account ? ` — ${account.name} (${account.currency})` : ""}`}
+        description={
+          <>
+            {`Live data from your Meta Ad Account${account ? ` — ${account.name} (${account.currency})` : ""}`}
+            {lastFetched && (
+              <span className="ml-3 inline-flex items-center gap-1 text-green-600">
+                <Wifi className="w-3 h-3" />
+                Cached · {lastFetched}
+              </span>
+            )}
+          </>
+        }
       />
 
       {/* Controls */}
@@ -133,6 +194,14 @@ export default function MetaCampaigns() {
           label="Fetch Campaigns"
           loadingLabel="Fetching from Meta..."
         />
+        {fetched && (
+          <button
+            onClick={clearCache}
+            className="inline-flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 hover:text-red-600 border border-gray-200 rounded-lg hover:border-red-200 transition-colors"
+          >
+            <Trash2 className="w-3.5 h-3.5" /> Clear cache
+          </button>
+        )}
         {dateRange && (
           <span className="text-xs text-gray-500">
             {dateRange.since} → {dateRange.until}
@@ -160,7 +229,7 @@ export default function MetaCampaigns() {
       {/* Empty state */}
       {!loading && campaigns.length === 0 && !error && (
         <EmptyState
-          icon={<RefreshCw className="w-10 h-10 text-gray-400" />}
+          icon={<WifiOff className="w-10 h-10 text-gray-400" />}
           message="Click 'Fetch Campaigns' to load your Meta Ad Account data"
         />
       )}
@@ -181,7 +250,7 @@ export default function MetaCampaigns() {
             <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
               <p className="text-xs text-gray-500">Total Spend</p>
               <p className="text-2xl font-semibold text-gray-900">
-                ${totals.totalSpend.toFixed(2)}
+                ₹{totals.totalSpend.toFixed(2)}
               </p>
             </div>
             <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
@@ -246,13 +315,13 @@ export default function MetaCampaigns() {
                     </td>
                     <td className="p-3 text-right text-gray-700">
                       {c.dailyBudget
-                        ? `$${c.dailyBudget}/day`
+                        ? `₹${c.dailyBudget}/day`
                         : c.lifetimeBudget
-                          ? `$${c.lifetimeBudget}`
+                          ? `₹${c.lifetimeBudget}`
                           : "—"}
                     </td>
                     <td className="p-3 text-right text-gray-900 font-medium">
-                      {c.metrics ? `$${c.metrics.spend.toFixed(2)}` : "—"}
+                      {c.metrics ? `₹${c.metrics.spend.toFixed(2)}` : "—"}
                     </td>
                     <td className="p-3 text-right text-gray-600">
                       {c.metrics ? c.metrics.impressions.toLocaleString() : "—"}
@@ -264,7 +333,7 @@ export default function MetaCampaigns() {
                       {c.metrics ? `${c.metrics.ctr.toFixed(2)}%` : "—"}
                     </td>
                     <td className="p-3 text-right text-gray-600">
-                      {c.metrics ? `$${c.metrics.cpc.toFixed(2)}` : "—"}
+                      {c.metrics ? `₹${c.metrics.cpc.toFixed(2)}` : "—"}
                     </td>
                     <td className="p-3 text-right text-gray-600">
                       {c.metrics ? c.metrics.reach.toLocaleString() : "—"}

@@ -1,94 +1,147 @@
-import { chatCompletion } from "@/lib/openrouter";
-import type { AdCreative, AdObjective } from "@/types/marketing";
+import { imageCompletion } from "@/lib/openrouter";
 
-interface AdCreativeInput {
-  sourceContent: string;
-  platform: "facebook" | "google_display" | "google_search";
-  objective: AdObjective;
-  targetAudience: string;
-  productService: string;
-  cta?: string;
+export interface TargetAudience {
+  ageBracket: string;
+  countries: string[];
+  regions: string[];
+  genderRatio?: string;
 }
+
+export interface AdCreativeInput {
+  sourceContent: string;
+  platform: "facebook" | "google_display" | "instagram";
+  objective: "awareness" | "consideration" | "conversion";
+  audience: TargetAudience;
+  productService: string;
+}
+
+export interface AdCreativeResult {
+  id: string;
+  iteration: number;
+  imageUrl: string; // base64 data URL from OpenRouter
+  adAngle: string;
+  improvement: string;
+  dimensions: string;
+}
+
+// Aspect ratios per platform
+const PLATFORM_ASPECT: Record<string, "16:9" | "1:1"> = {
+  facebook: "16:9",
+  google_display: "16:9",
+  instagram: "1:1",
+};
+
+const PLATFORM_DIMS: Record<string, string> = {
+  facebook: "1344×768",
+  google_display: "1344×768",
+  instagram: "1024×1024",
+};
+
+// Each iteration has a distinct creative angle + what makes it better
+const ITERATIONS = [
+  {
+    angle: "Emotional storytelling — aspirational lifestyle",
+    improvement: "Starting point — emotional hook",
+    style:
+      "warm cinematic lifestyle photography, golden hour lighting, aspirational mood, shallow depth of field",
+  },
+  {
+    angle: "Social proof — community energy",
+    improvement: "Adds social validation and crowd energy",
+    style:
+      "vibrant community scene, diverse happy people, dynamic composition, bright natural light",
+  },
+  {
+    angle: "Problem → solution contrast",
+    improvement: "Stronger narrative tension with before/after contrast",
+    style:
+      "split composition, dramatic contrast between dark problem side and bright solution side, bold visual storytelling",
+  },
+  {
+    angle: "Bold product hero shot",
+    improvement: "Clean product focus with premium studio feel",
+    style:
+      "minimalist studio photography, dramatic product hero shot, perfect lighting, luxury commercial aesthetic, white or dark gradient background",
+  },
+  {
+    angle: "Ultra-refined premium — best of all angles",
+    improvement:
+      "Combines emotional storytelling, social proof, and premium product presentation into one cohesive visual",
+    style:
+      "award-winning advertising photography, perfect composition, cinematic color grading, ultra-sharp, magazine cover quality",
+  },
+];
 
 export async function generateAdCreatives(
   input: AdCreativeInput,
-): Promise<AdCreative[]> {
-  const platformInstructions: Record<string, string> = {
-    facebook: `Generate 5 Facebook/Instagram ad creative variations:
-For each creative provide:
-- primaryText (max 125 chars, compelling hook)
-- headline (max 40 chars)
-- description (max 30 chars)
-- cta (one of: Learn More, Shop Now, Sign Up, Get Offer, Book Now, Contact Us)
-- creativeType: one of "single_image", "video", "carousel", "story"
-- adAngle: brief description of the angle used
-
-Variations:
-1. Pain point → solution
-2. Social proof / testimonial style
-3. Urgency / scarcity
-4. Benefit-led
-5. Question hook`,
-
-    google_display: `Generate 5 Google Display responsive ad variations:
-For each creative provide:
-- headline (max 30 chars)
-- longHeadline (max 90 chars)
-- description (max 90 chars)
-- cta (one of: Learn More, Get Quote, Shop Now, Sign Up, Contact Us)
-- creativeType: "responsive_display"
-- adAngle: brief description
-
-Variations should cover different value propositions and hooks.`,
-
-    google_search: `Generate 5 Google Search responsive ad variations:
-For each provide:
-- headlines: array of 3 headlines (each max 30 chars)
-- descriptions: array of 2 descriptions (each max 90 chars)
-- cta: implied CTA in copy
-- creativeType: "responsive_search"
-- adAngle: brief description
-- suggestedKeywords: array of 5 target keywords
-
-Variations should target different search intents.`,
-  };
-
-  const prompt = `You are an expert performance marketer and ad copywriter.
-
-Source Content: ${input.sourceContent}
-Platform: ${input.platform}
-Campaign Objective: ${input.objective}
-Target Audience: ${input.targetAudience}
-Product/Service: ${input.productService}
-${input.cta ? `Preferred CTA: ${input.cta}` : ""}
-
-${platformInstructions[input.platform]}
-
-Requirements:
-- Every character counts — be concise and punchy
-- Use power words that drive action
-- Match the objective (awareness = broad appeal, conversion = specific action)
-- No generic filler copy
-
-Return as JSON:
-{
-  "creatives": [
-    {
-      "id": "creative_1",
-      "platform": "${input.platform}",
-      "creativeType": "...",
-      "primaryText": "...",
-      "headline": "...",
-      "description": "...",
-      "cta": "...",
-      "metadata": { "adAngle": "...", "suggestedKeywords": [] }
-    }
+): Promise<AdCreativeResult[]> {
+  const audienceContext = [
+    `age ${input.audience.ageBracket}`,
+    input.audience.countries.join(", ") || "global audience",
+    input.audience.regions.length ? input.audience.regions.join(", ") : null,
+    input.audience.genderRatio || null,
   ]
-}`;
+    .filter(Boolean)
+    .join(", ");
 
-  const raw = await chatCompletion([{ role: "user", content: prompt }], {
-    jsonMode: true,
-  });
-  const parsed = JSON.parse(raw);
-  return parsed.creatives as AdCreative[];
+  const aspectRatio = PLATFORM_ASPECT[input.platform];
+  const dimensions = PLATFORM_DIMS[input.platform];
+
+  // Generate all 5 in parallel — catch per-image errors so one failure doesn't kill the batch
+  const results = await Promise.all(
+    ITERATIONS.map(async (iter, i) => {
+      const prompt = buildImagePrompt({
+        productService: input.productService,
+        sourceContent: input.sourceContent,
+        platform: input.platform,
+        objective: input.objective,
+        audienceContext,
+        style: iter.style,
+        iteration: i + 1,
+      });
+
+      let imageUrl = "";
+      try {
+        imageUrl = await imageCompletion(prompt, {
+          aspectRatio,
+          imageSize: "2K", // 4K can timeout; 2K is more reliable
+        });
+      } catch (err) {
+        console.error(`imageCompletion failed for creative_${i + 1}:`, err);
+        imageUrl = ""; // will show error state in UI
+      }
+
+      return {
+        id: `creative_${i + 1}`,
+        iteration: i + 1,
+        imageUrl,
+        adAngle: iter.angle,
+        improvement: iter.improvement,
+        dimensions,
+      } satisfies AdCreativeResult;
+    }),
+  );
+
+  return results;
+}
+
+function buildImagePrompt(p: {
+  productService: string;
+  sourceContent: string;
+  platform: string;
+  objective: string;
+  audienceContext: string;
+  style: string;
+  iteration: number;
+}): string {
+  return [
+    `Professional advertising creative for "${p.productService}".`,
+    `Platform: ${p.platform} ad. Objective: ${p.objective}.`,
+    `Target audience: ${p.audienceContext}.`,
+    `Context: ${p.sourceContent.slice(0, 200)}.`,
+    p.style,
+    "No text overlays, no watermarks, no logos.",
+    "Ultra high resolution, 8K, photorealistic, commercial advertising quality.",
+    "Shot by a top advertising photographer.",
+  ].join(" ");
 }

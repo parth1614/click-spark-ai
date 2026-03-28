@@ -1,6 +1,21 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const GOOGLE_ADS_API = "https://googleads.googleapis.com/v23";
+
+const ACCOUNTS: Record<string, { label: string; customerId: string }> = {
+  default: {
+    label: "Default",
+    customerId: process.env.GOOGLE_ADS_CUSTOMER_ID || "",
+  },
+  tradewise: {
+    label: "Tradewise",
+    customerId: process.env.GOOGLE_ADS_CUSTOMER_ID_TRADEWISE || "",
+  },
+  astrolearn: {
+    label: "Astrolearn",
+    customerId: process.env.GOOGLE_ADS_CUSTOMER_ID_ASTROLEARN || "",
+  },
+};
 
 async function getAccessToken(): Promise<string> {
   const res = await fetch("https://oauth2.googleapis.com/token", {
@@ -14,27 +29,40 @@ async function getAccessToken(): Promise<string> {
     }),
   });
   const data = await res.json();
+  console.log("Token exchange response:", JSON.stringify(data));
   if (data.error)
-    throw new Error(`Token error: ${data.error_description || data.error}`);
+    throw new Error(`Token error: ${data.error} — ${data.error_description}`);
+  if (!data.access_token)
+    throw new Error(`No access_token in response: ${JSON.stringify(data)}`);
   return data.access_token;
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const customerId = process.env.GOOGLE_ADS_CUSTOMER_ID;
+    const accountKey = req.nextUrl.searchParams.get("account") || "default";
+    const account = ACCOUNTS[accountKey] || ACCOUNTS.default;
+    const customerId = account.customerId;
     const managerId = process.env.GOOGLE_ADS_MANAGER_ID;
     const devToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN;
 
     if (!customerId || !devToken || !process.env.GOOGLE_ADS_REFRESH_TOKEN) {
       return NextResponse.json(
-        { error: "Google Ads credentials not configured in .env.local" },
+        { error: "Google Ads credentials not configured in .env" },
         { status: 401 },
       );
     }
 
+    const availableAccounts = Object.entries(ACCOUNTS)
+      .filter(([, v]) => v.customerId)
+      .map(([key, v]) => ({
+        id: key,
+        label: v.label,
+        customerId: v.customerId,
+      }));
+
     const accessToken = await getAccessToken();
 
-    // Minimal query — only 2 campaigns, only essential fields, no date segmentation
+    // Fetch active (ENABLED) campaigns only, ordered by spend
     const query = `
       SELECT
         campaign.id,
@@ -46,9 +74,9 @@ export async function GET() {
         metrics.cost_micros,
         metrics.ctr
       FROM campaign
-      WHERE campaign.status != 'REMOVED'
+      WHERE campaign.status = 'ENABLED'
       ORDER BY metrics.cost_micros DESC
-      LIMIT 2
+      LIMIT 50
     `;
 
     const res = await fetch(
@@ -96,7 +124,12 @@ export async function GET() {
       },
     }));
 
-    return NextResponse.json({ campaigns, customerId });
+    return NextResponse.json({
+      campaigns,
+      customerId,
+      accountLabel: account.label,
+      availableAccounts,
+    });
   } catch (err: unknown) {
     const msg =
       err instanceof Error
