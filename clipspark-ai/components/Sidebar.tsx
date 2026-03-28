@@ -15,6 +15,7 @@ import {
   Brain,
   Bell,
   Settings,
+  Radio,
   type LucideIcon,
 } from "lucide-react";
 
@@ -29,6 +30,8 @@ export type NavSection =
   | "ai-writer"
   | "ad-creatives"
   | "campaigns"
+  | "meta-campaigns"
+  | "google-campaigns"
   | "analytics"
   | "optimization"
   | "alerts"
@@ -58,6 +61,8 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { id: "ad-creatives", label: "Ad Creatives", Icon: Palette },
       { id: "campaigns", label: "Campaigns", Icon: BarChart3 },
+      { id: "meta-campaigns", label: "Meta Ads (Live)", Icon: Radio },
+      { id: "google-campaigns", label: "Google Ads (Live)", Icon: Search },
       { id: "analytics", label: "Analytics", Icon: TrendingUp },
       { id: "optimization", label: "AI Optimizer", Icon: Brain },
       { id: "alerts", label: "Alerts", Icon: Bell },

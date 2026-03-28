@@ -12,6 +12,8 @@ import EmailWriter from "@/components/writers/EmailWriter";
 import AIWriterStudio from "@/components/writers/AIWriterStudio";
 import AdCreativeGenerator from "@/components/marketing/AdCreativeGenerator";
 import CampaignManager from "@/components/marketing/CampaignManager";
+import MetaCampaigns from "@/components/marketing/MetaCampaigns";
+import GoogleCampaigns from "@/components/marketing/GoogleCampaigns";
 import PerformanceAnalytics from "@/components/marketing/PerformanceAnalytics";
 import OptimizationPanel from "@/components/marketing/OptimizationPanel";
 import AlertsPanel from "@/components/marketing/AlertsPanel";
@@ -28,6 +30,8 @@ const SECTIONS: Record<NavSection, React.ComponentType> = {
   "ai-writer": AIWriterStudio,
   "ad-creatives": AdCreativeGenerator,
   campaigns: CampaignManager,
+  "meta-campaigns": MetaCampaigns,
+  "google-campaigns": GoogleCampaigns,
   analytics: PerformanceAnalytics,
   optimization: OptimizationPanel,
   alerts: AlertsPanel,
@@ -41,7 +45,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen">
       <Sidebar active={section} onNavigate={setSection} alertCount={3} />
-      <main className="flex-1 p-8 overflow-y-auto max-w-5xl">
+      <main className="flex-1 p-8 overflow-y-auto">
         <ActiveSection />
       </main>
     </div>
