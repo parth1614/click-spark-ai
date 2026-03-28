@@ -1,645 +1,821 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import {
   ArrowRight,
-  BarChart2,
   Zap,
-  Target,
-  TrendingUp,
+  BarChart2,
   Brain,
   Palette,
-  CheckCircle,
-  Database,
-  RefreshCw,
   FileText,
-  MousePointerClick,
   Globe,
   Mail,
+  TrendingUp,
+  Video,
+  Sparkles,
   Search,
-  Layers,
+  MessageSquare,
+  Target,
+  Database,
+  RefreshCw,
+  ChevronRight,
 } from "lucide-react";
 
 interface LandingPageProps {
   onEnter: (section?: string) => void;
 }
 
-const FEATURES = [
-  {
-    icon: BarChart2,
-    title: "Live Campaign Sync",
-    body: "Pull real-time data from Google Ads and Meta into a single dashboard. Impressions, clicks, spend, CTR — all in one place, updated every time you fetch.",
-  },
-  {
-    icon: Brain,
-    title: "AI Campaign Scoring",
-    body: "Every campaign gets an A–F grade across 5 dimensions: efficiency, engagement, reach, consistency, and growth potential. No more guessing what's working.",
-  },
-  {
-    icon: Palette,
-    title: "Ad Creative Generation",
-    body: "Describe your product, set your audience, and get 5 high-quality ad images — each iteration more refined than the last. Powered by state-of-the-art image models.",
-  },
-  {
-    icon: Target,
-    title: "Precision Audience Targeting",
-    body: "Define age brackets, target countries, specific states and cities, and gender ratios before generating creatives. Your ads reach exactly who you want.",
-  },
-  {
-    icon: TrendingUp,
-    title: "Cross-Platform Analytics",
-    body: "Unified charts for spend, CTR, impressions, and clicks across Google and Meta. See your platform split at a glance and drill into individual campaigns.",
-  },
-  {
-    icon: Database,
-    title: "Database-Backed Storage",
-    body: "All campaign data and AI analysis results are stored in your own Supabase database — not in browser storage. Persistent, queryable, and yours.",
-  },
-  {
-    icon: FileText,
-    title: "50+ Content Formats",
-    body: "One topic becomes LinkedIn posts, tweets, blog articles, SEO content, GEO-optimized copy, email sequences, and more. The content factory runs 24/7.",
-  },
-  {
-    icon: Globe,
-    title: "GEO Content Optimization",
-    body: "Generate content optimized for AI search engines like Perplexity and ChatGPT. Stay visible as search behavior shifts away from traditional SEO.",
-  },
-  {
-    icon: Mail,
-    title: "Email Writer",
-    body: "Write cold outreach, nurture sequences, and promotional emails with AI. Tone-matched to your brand, structured for conversion.",
-  },
-];
+function useInView(threshold = 0.1) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          setVisible(true);
+          obs.disconnect();
+        }
+      },
+      { threshold },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+  return { ref, visible };
+}
 
-const STATS = [
-  { value: "50+", label: "Content formats from one brief" },
-  { value: "5", label: "AI creatives per campaign" },
-  { value: "A–F", label: "Campaign scoring system" },
-  { value: "2", label: "Ad platforms connected" },
-];
+function Reveal({
+  children,
+  delay = 0,
+  className = "",
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+}) {
+  const { ref, visible } = useInView();
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible
+          ? "translateY(0) scale(1)"
+          : "translateY(24px) scale(0.98)",
+        transition: `opacity 0.6s cubic-bezier(0.4,0,0.2,1) ${delay}ms, transform 0.6s cubic-bezier(0.4,0,0.2,1) ${delay}ms`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
 
-const HOW_IT_WORKS = [
+const PIPELINES = [
   {
-    step: "01",
-    title: "Connect your ad accounts",
-    body: "Link Google Ads and Meta via OAuth in under 2 minutes. Your campaigns, ad accounts, and metrics sync automatically. No CSV exports, no manual data entry.",
-    cta: "Connect accounts",
-    section: "integrations",
-    detail:
-      "Supports multiple ad accounts per platform — switch between Tradewise, AstroLearn, and others from a single dropdown.",
-  },
-  {
-    step: "02",
-    title: "Fetch live campaign data",
-    body: "Pull real metrics — spend, CTR, impressions, clicks, reach, frequency — directly from the platform APIs. Data is stored in your database, not your browser.",
-    cta: "View Google Ads",
-    section: "google-campaigns",
-    detail:
-      "Fetches up to 50 active campaigns per account, ordered by spend. Supports ENABLED campaigns only to keep the view clean.",
-  },
-  {
-    step: "03",
-    title: "Run AI performance analysis",
-    body: "Get every campaign scored across 5 dimensions with specific, actionable recommendations. See what's bleeding budget, what has growth potential, and exactly what to do next.",
-    cta: "Analyze campaigns",
+    id: "performance",
+    label: "Ad Intelligence",
+    title: "Run smarter ads.",
+    tagline: "Stop guessing which campaigns work.",
+    description:
+      "Connect your Google Ads and Meta accounts. See every campaign's real numbers — spend, clicks, reach — in one place. Our AI grades each campaign from A to F and tells you exactly what to cut, what to scale, and what to fix. No more spreadsheets. No more gut calls.",
+    color: "#1a73e8",
+    lightColor: "#e8f0fe",
+    features: [
+      { icon: BarChart2, text: "Live Google & Meta campaign data" },
+      { icon: Brain, text: "AI grades every campaign A–F" },
+      { icon: TrendingUp, text: "Charts across both platforms" },
+      { icon: Target, text: "Alerts when metrics go off-track" },
+      { icon: Palette, text: "5 AI ad images per brief, at 4K" },
+      { icon: Database, text: "Everything saved to your database" },
+    ],
+    cta: "See your campaigns",
     section: "analytics",
-    detail:
-      "Analysis results are saved to your database so you can track how recommendations change over time.",
   },
   {
-    step: "04",
-    title: "Generate ad creatives",
-    body: "Brief the AI on your product, audience, and objective. Get 5 high-quality ad images — each one more refined than the last — ready to download and deploy.",
-    cta: "Create ads",
-    section: "ad-creatives",
-    detail:
-      "Supports Facebook, Instagram, and Google Display formats. Images generated at 4K resolution via Seedream 4.5.",
+    id: "ugc",
+    label: "AI Video & UGC",
+    title: "Content that doesn't feel like an ad.",
+    tagline: "The trust layer your brand is missing.",
+    description:
+      "Real-looking, scroll-stopping video scripts and UGC-style content — generated in seconds. The kind of content people share, save, and remember. It doesn't interrupt. It earns attention. And it makes every paid ad you run work harder.",
+    color: "#f4511e",
+    lightColor: "#fce8e6",
+    features: [
+      { icon: Video, text: "Video scripts for any platform" },
+      { icon: Sparkles, text: "Hooks that stop the scroll" },
+      { icon: Brain, text: "UGC formats that feel authentic" },
+      { icon: Target, text: "Matched to your audience's language" },
+      { icon: FileText, text: "Repurpose one idea everywhere" },
+      { icon: Zap, text: "Multiple variations from one brief" },
+    ],
+    cta: "Write your first script",
+    section: "ai-writer",
   },
   {
-    step: "05",
-    title: "Publish content at scale",
-    body: "Turn one topic into a full content calendar. LinkedIn posts, tweets, blog articles, SEO content, emails — all generated and ready to publish.",
-    cta: "Open content factory",
+    id: "distribution",
+    label: "Content Engine",
+    title: "Publish everywhere.",
+    tagline: "Build an audience you actually own.",
+    description:
+      "Type a topic. ClickSpark writes LinkedIn posts, tweets, blog articles, SEO content, emails, and more — all in your brand's voice, all ready to post. The more you publish, the less you pay for attention. Owned channels compound. Ad spend doesn't.",
+    color: "#0f9d58",
+    lightColor: "#e6f4ea",
+    features: [
+      { icon: MessageSquare, text: "LinkedIn & Twitter posts" },
+      { icon: FileText, text: "Blog articles & SEO content" },
+      { icon: Globe, text: "Content for AI search engines" },
+      { icon: Mail, text: "Cold emails & nurture sequences" },
+      { icon: Sparkles, text: "Any format, any tone" },
+      { icon: RefreshCw, text: "Full calendar from one brief" },
+    ],
+    cta: "Start creating content",
     section: "pipeline",
-    detail:
-      "The AI Writer Studio lets you customize tone, length, and format for every piece of content.",
-  },
-];
-
-const PLATFORM_FEATURES = [
-  {
-    label: "Google Ads",
-    sub: "Live campaign sync · Multi-account · ENABLED filter",
-    color: "bg-green-500",
-  },
-  {
-    label: "Meta / Facebook",
-    sub: "Campaigns · Insights · Multiple ad accounts",
-    color: "bg-blue-500",
-  },
-  {
-    label: "AI Analysis",
-    sub: "A–F scoring · Metric alerts · Optimization priorities",
-    color: "bg-purple-500",
-  },
-  {
-    label: "Ad Creatives",
-    sub: "5 images per brief · 4K resolution · Download ready",
-    color: "bg-orange-400",
-  },
-  {
-    label: "Content Factory",
-    sub: "LinkedIn · Twitter · Blog · SEO · GEO · Email",
-    color: "bg-pink-500",
-  },
-  {
-    label: "Database Storage",
-    sub: "Supabase · Persistent · Queryable · Yours",
-    color: "bg-gray-700",
-  },
-];
-
-const WHATS_INCLUDED = [
-  "Campaign scores with A–F grades across 5 dimensions",
-  "Platform-level spend breakdown with donut chart",
-  "AI-generated optimization priorities with impact levels",
-  "Cross-platform CTR and spend bar charts",
-  "Metric alerts with benchmarks and recommended actions",
-  "Metrics to watch with current status vs target",
-  "50+ content formats from a single topic brief",
-  "Ad creatives stored in your own database",
-  "Multi-account support for Google and Meta",
-  "GEO-optimized content for AI search engines",
-  "Email writer with tone and structure controls",
-  "AI Writer Studio for custom content formats",
-];
-
-const CONTENT_TYPES = [
-  {
-    icon: Layers,
-    label: "Content Pipeline",
-    sub: "Full campaign in one click",
-  },
-  { icon: FileText, label: "Blog Writer", sub: "Long-form, SEO-ready" },
-  { icon: Search, label: "SEO Articles", sub: "Keyword-optimized" },
-  { icon: Globe, label: "GEO Optimizer", sub: "AI search visibility" },
-  { icon: Mail, label: "Email Writer", sub: "Cold & nurture sequences" },
-  {
-    icon: MousePointerClick,
-    label: "LinkedIn Writer",
-    sub: "Professional posts",
   },
 ];
 
 export default function LandingPage({ onEnter }: LandingPageProps) {
+  const [scrolled, setScrolled] = useState(false);
+  const [activePipeline, setActivePipeline] = useState(0);
+
+  useEffect(() => {
+    const h = () => setScrolled(window.scrollY > 60);
+    window.addEventListener("scroll", h);
+    return () => window.removeEventListener("scroll", h);
+  }, []);
+
   return (
     <div className="min-h-screen bg-white text-gray-900 overflow-x-hidden">
-      {/* Nav */}
-      <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-100 px-8 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+      {/* NAV */}
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-white shadow-md" : "bg-transparent"}`}
+      >
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: "#1a73e8" }}
+            >
               <Zap className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-gray-900 tracking-tight text-lg">
-              ClickSpark AI
+            <span className="font-bold text-gray-900 text-lg tracking-tight">
+              ClickSpark
             </span>
           </div>
-          <div className="hidden md:flex items-center gap-8 text-sm text-gray-500">
-            <span
-              className="hover:text-gray-900 cursor-pointer transition-colors"
-              onClick={() => onEnter("analytics")}
-            >
-              Analytics
-            </span>
-            <span
-              className="hover:text-gray-900 cursor-pointer transition-colors"
-              onClick={() => onEnter("ad-creatives")}
-            >
-              Ad Creatives
-            </span>
-            <span
-              className="hover:text-gray-900 cursor-pointer transition-colors"
-              onClick={() => onEnter("pipeline")}
-            >
-              Content
-            </span>
-            <span
-              className="hover:text-gray-900 cursor-pointer transition-colors"
-              onClick={() => onEnter("integrations")}
-            >
-              Integrations
-            </span>
+          <div className="hidden md:flex items-center gap-8 text-sm text-gray-600">
+            {[
+              ["Ad Intelligence", "analytics"],
+              ["Content Engine", "pipeline"],
+              ["AI Video & UGC", "ai-writer"],
+              ["Integrations", "integrations"],
+            ].map(([l, s]) => (
+              <button
+                key={l}
+                onClick={() => onEnter(s)}
+                className="hover:text-blue-600 transition-colors font-medium"
+              >
+                {l}
+              </button>
+            ))}
           </div>
           <button
             onClick={() => onEnter()}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold text-white transition-all hover:shadow-lg"
+            style={{ backgroundColor: "#1a73e8" }}
           >
-            Open Dashboard <ArrowRight className="w-3.5 h-3.5" />
+            Get started <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </nav>
 
-      {/* Hero */}
-      <section className="max-w-6xl mx-auto px-8 pt-28 pb-24">
-        <div className="max-w-4xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-full text-xs text-gray-600 font-medium mb-10 tracking-wide uppercase">
-            <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-            Now with AI campaign scoring · Seedream 4.5 image generation
-          </div>
-
-          <h1
-            className="text-7xl font-black tracking-tight text-gray-900 leading-[1.02] mb-8"
-            style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
-          >
-            Stop guessing.
-            <br />
-            <span className="text-gray-300">Start knowing.</span>
-          </h1>
-
-          <p className="text-2xl text-gray-500 max-w-2xl leading-relaxed mb-4 font-light">
-            ClickSpark connects your Google Ads and Meta accounts, scores every
-            campaign with AI, and generates creatives — all in one platform.
-          </p>
-          <p className="text-lg text-gray-400 max-w-xl leading-relaxed mb-12">
-            Built for performance marketers who are tired of switching between
-            10 different tools and still not knowing what's actually working.
-          </p>
-
-          <div className="flex items-center gap-4 flex-wrap">
-            <button
-              onClick={() => onEnter("analytics")}
-              className="inline-flex items-center gap-2.5 px-7 py-4 bg-black text-white rounded-xl text-base font-semibold hover:bg-gray-800 transition-colors"
-            >
-              Analyze My Campaigns <ArrowRight className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => onEnter("ad-creatives")}
-              className="inline-flex items-center gap-2.5 px-7 py-4 bg-white text-gray-900 border border-gray-200 rounded-xl text-base font-semibold hover:border-gray-400 transition-colors"
-            >
-              Generate Ad Creatives
-            </button>
-            <button
-              onClick={() => onEnter("integrations")}
-              className="text-sm text-gray-400 hover:text-gray-700 transition-colors underline underline-offset-4"
-            >
-              Connect accounts first →
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section className="border-y border-gray-100 bg-gray-50 py-14">
-        <div className="max-w-5xl mx-auto px-8 grid grid-cols-2 md:grid-cols-4 gap-10">
-          {STATS.map((s) => (
-            <div key={s.label}>
-              <p
-                className="text-5xl font-black text-gray-900 mb-2"
-                style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
-              >
-                {s.value}
-              </p>
-              <p className="text-sm text-gray-500 leading-snug">{s.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Problem statement */}
-      <section className="max-w-4xl mx-auto px-8 py-28">
-        <p className="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-6">
-          The problem
-        </p>
-        <h2
-          className="text-5xl font-black tracking-tight text-gray-900 leading-tight mb-8"
-          style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
-        >
-          You're spending money on ads.
-          <br />
-          You don't know which ones work.
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-          {[
-            {
-              title: "Data is scattered",
-              body: "Google Ads in one tab. Meta Business Manager in another. Spreadsheets for everything else. You spend more time gathering data than acting on it.",
-            },
-            {
-              title: "Insights are vague",
-              body: '"CTR is low" isn\'t actionable. You need to know which campaigns to pause, which to scale, and exactly why — with specific next steps.',
-            },
-            {
-              title: "Creatives take forever",
-              body: "Briefing a designer, waiting for revisions, testing variations — it takes weeks to get 5 ad images. By then, the moment has passed.",
-            },
-          ].map((item) => (
-            <div key={item.title} className="border-t-2 border-gray-900 pt-6">
-              <h3 className="font-bold text-gray-900 text-lg mb-3">
-                {item.title}
-              </h3>
-              <p className="text-gray-500 text-sm leading-relaxed">
-                {item.body}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Solution */}
-      <section className="bg-gray-950 text-white py-28">
-        <div className="max-w-4xl mx-auto px-8">
-          <p className="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-6">
-            The solution
-          </p>
-          <h2
-            className="text-5xl font-black tracking-tight leading-tight mb-6"
-            style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
-          >
-            One platform.
-            <br />
-            <span className="text-gray-400">Every answer.</span>
-          </h2>
-          <p className="text-xl text-gray-400 max-w-2xl leading-relaxed mb-16 font-light">
-            ClickSpark pulls your live campaign data, scores every campaign with
-            AI, surfaces exactly what to fix, and generates creatives — all
-            without leaving the dashboard.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {PLATFORM_FEATURES.map((f) => (
-              <div
-                key={f.label}
-                className="flex items-start gap-4 p-5 border border-gray-800 rounded-xl hover:border-gray-600 transition-colors"
-              >
-                <div
-                  className={`w-2.5 h-2.5 rounded-full ${f.color} shrink-0 mt-1.5`}
-                />
-                <div>
-                  <p className="font-semibold text-white text-sm">{f.label}</p>
-                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
-                    {f.sub}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Features grid */}
-      <section className="max-w-6xl mx-auto px-8 py-28">
-        <div className="mb-16">
-          <p className="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-4">
-            Features
-          </p>
-          <h2
-            className="text-5xl font-black tracking-tight text-gray-900 leading-tight"
-            style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
-          >
-            Everything you need.
-            <br />
-            <span className="text-gray-300">Nothing you don't.</span>
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {FEATURES.map((f) => (
+      {/* HERO — full width */}
+      <section
+        className="w-full pt-32 pb-0 overflow-hidden"
+        style={{ backgroundColor: "#f8f9fa" }}
+      >
+        <div className="max-w-7xl mx-auto px-6">
+          <Reveal>
             <div
-              key={f.title}
-              className="p-7 border border-gray-100 rounded-2xl hover:border-gray-300 hover:shadow-sm transition-all group"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-8"
+              style={{ backgroundColor: "#e8f0fe", color: "#1a73e8" }}
             >
-              <div className="w-11 h-11 bg-gray-100 rounded-xl flex items-center justify-center mb-5 group-hover:bg-gray-200 transition-colors">
-                <f.icon className="w-5 h-5 text-gray-700" />
-              </div>
-              <h3 className="font-bold text-gray-900 text-base mb-2.5">
-                {f.title}
-              </h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{f.body}</p>
+              <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+              One platform. Every marketing move.
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* How it works */}
-      <section className="bg-gray-50 py-28">
-        <div className="max-w-4xl mx-auto px-8">
-          <div className="mb-16">
-            <p className="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-4">
-              How it works
-            </p>
-            <h2
-              className="text-5xl font-black tracking-tight text-gray-900 leading-tight"
+          </Reveal>
+          <Reveal delay={80}>
+            <h1
+              className="text-[4.5rem] md:text-[6rem] font-black tracking-tight leading-[0.95] text-gray-900 mb-8 max-w-5xl"
               style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
             >
-              From zero to insights
+              Run better ads.
               <br />
-              in under 5 minutes.
-            </h2>
-          </div>
-
-          <div className="space-y-4">
-            {HOW_IT_WORKS.map((item) => (
-              <div
-                key={item.step}
-                className="bg-white rounded-2xl border border-gray-100 p-7"
+              <span style={{ color: "#1a73e8" }}>Publish everywhere.</span>
+              <br />
+              Build real trust.
+            </h1>
+          </Reveal>
+          <Reveal delay={160}>
+            <p className="text-xl md:text-2xl text-gray-500 font-light max-w-2xl leading-relaxed mb-12">
+              ClickSpark gives your marketing team three superpowers: smarter ad
+              decisions, content that compounds, and video that earns attention
+              — all from one place.
+            </p>
+          </Reveal>
+          <Reveal delay={240}>
+            <div className="flex items-center gap-4 flex-wrap mb-16">
+              <button
+                onClick={() => onEnter("analytics")}
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-base font-semibold text-white shadow-lg hover:shadow-xl transition-all"
+                style={{ backgroundColor: "#1a73e8" }}
               >
-                <div className="flex items-start gap-6">
-                  <span
-                    className="text-4xl font-black text-gray-100 shrink-0 leading-none"
+                Analyze my ads <ArrowRight className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => onEnter("pipeline")}
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-base font-semibold border-2 border-gray-200 text-gray-700 hover:border-blue-400 transition-all"
+              >
+                Write content
+              </button>
+              <button
+                onClick={() => onEnter("ai-writer")}
+                className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-base font-semibold border-2 border-gray-200 text-gray-700 hover:border-orange-400 transition-all"
+              >
+                Make a video script
+              </button>
+            </div>
+          </Reveal>
+        </div>
+
+        {/* Hero visual — 3 pipeline cards full width */}
+        <div className="w-full px-6 pb-8">
+          <div className="max-w-7xl mx-auto grid grid-cols-3 gap-4 items-stretch">
+            {PIPELINES.map((p, i) => (
+              <Reveal key={p.id} delay={i * 100} className="flex">
+                <div
+                  className="rounded-2xl p-8 cursor-pointer transition-all duration-300 hover:-translate-y-1 flex flex-col w-full"
+                  style={{
+                    backgroundColor: p.lightColor,
+                    borderTop: `4px solid ${p.color}`,
+                  }}
+                  onClick={() => onEnter(p.section)}
+                >
+                  <div
+                    className="text-xs font-bold tracking-widest uppercase mb-3"
+                    style={{ color: p.color }}
+                  >
+                    {p.label}
+                  </div>
+                  <h3
+                    className="text-2xl font-black text-gray-900 mb-1"
                     style={{
                       fontFamily: "var(--font-playfair), Georgia, serif",
                     }}
                   >
-                    {item.step}
-                  </span>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-gray-900 text-lg mb-2">
-                      {item.title}
-                    </h3>
-                    <p className="text-gray-500 text-sm leading-relaxed mb-3">
-                      {item.body}
-                    </p>
-                    <p className="text-xs text-gray-400 leading-relaxed border-l-2 border-gray-200 pl-3">
-                      {item.detail}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => onEnter(item.section)}
-                    className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium text-gray-700 border border-gray-200 rounded-xl hover:border-gray-400 hover:text-gray-900 transition-colors whitespace-nowrap"
+                    {p.title}
+                  </h3>
+                  <p
+                    className="text-sm font-semibold mb-4"
+                    style={{ color: p.color }}
                   >
-                    {item.cta} <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
+                    {p.tagline}
+                  </p>
+                  <p className="text-sm text-gray-600 leading-relaxed flex-1">
+                    {p.description.slice(0, 120)}...
+                  </p>
+                  <div
+                    className="flex items-center gap-1.5 mt-6 text-sm font-semibold"
+                    style={{ color: p.color }}
+                  >
+                    {p.cta} <ChevronRight className="w-4 h-4" />
+                  </div>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Content factory spotlight */}
-      <section className="max-w-6xl mx-auto px-8 py-28">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-4">
-              Content Factory
+      {/* PHILOSOPHY STRIP */}
+      <section
+        className="w-full py-16 px-6"
+        style={{ backgroundColor: "#1a1a2e" }}
+      >
+        <div className="max-w-7xl mx-auto">
+          <Reveal>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-0 divide-y md:divide-y-0 md:divide-x divide-gray-700">
+              {[
+                {
+                  label: "Ad Intelligence",
+                  sub: "Know which ads are making money and which are burning it.",
+                  color: "#4285f4",
+                },
+                {
+                  label: "Content Engine",
+                  sub: "Build an audience you own. Publish everywhere, automatically.",
+                  color: "#34a853",
+                },
+                {
+                  label: "AI Video & UGC",
+                  sub: "Create content that earns trust — not just impressions.",
+                  color: "#ea4335",
+                },
+              ].map((item) => (
+                <div key={item.label} className="px-10 py-8">
+                  <div
+                    className="text-lg font-bold mb-1"
+                    style={{ color: item.color }}
+                  >
+                    {item.label}
+                  </div>
+                  <div className="text-gray-400 text-sm leading-relaxed">
+                    {item.sub}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* THREE PIPELINES DEEP DIVE */}
+      {PIPELINES.map((p, idx) => (
+        <section
+          key={p.id}
+          className="w-full py-28 px-6"
+          style={{ backgroundColor: idx % 2 === 0 ? "#fff" : "#f8f9fa" }}
+        >
+          <div className="max-w-7xl mx-auto">
+            <div
+              className={`grid grid-cols-1 md:grid-cols-2 gap-16 items-center ${idx % 2 !== 0 ? "md:[&>*:first-child]:order-2" : ""}`}
+            >
+              {/* Text */}
+              <div>
+                <Reveal>
+                  <div
+                    className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-6"
+                    style={{ backgroundColor: p.lightColor, color: p.color }}
+                  >
+                    {p.label}
+                  </div>
+                </Reveal>
+                <Reveal delay={80}>
+                  <h2
+                    className="text-5xl font-black tracking-tight text-gray-900 leading-tight mb-3"
+                    style={{
+                      fontFamily: "var(--font-playfair), Georgia, serif",
+                    }}
+                  >
+                    {p.title}
+                  </h2>
+                  <p
+                    className="text-2xl font-semibold mb-6"
+                    style={{ color: p.color }}
+                  >
+                    {p.tagline}
+                  </p>
+                </Reveal>
+                <Reveal delay={160}>
+                  <p className="text-lg text-gray-500 leading-relaxed mb-10">
+                    {p.description}
+                  </p>
+                </Reveal>
+                <Reveal delay={220}>
+                  <button
+                    onClick={() => onEnter(p.section)}
+                    className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-base font-semibold text-white shadow-md hover:shadow-xl transition-all"
+                    style={{ backgroundColor: p.color }}
+                  >
+                    {p.cta} <ArrowRight className="w-4 h-4" />
+                  </button>
+                </Reveal>
+              </div>
+
+              {/* Feature cards */}
+              <div className="grid grid-cols-2 gap-3">
+                {p.features.map((f, i) => (
+                  <Reveal key={f.text} delay={i * 60}>
+                    <div
+                      className="p-5 rounded-2xl border border-gray-100 bg-white hover:shadow-md transition-all duration-300 cursor-pointer group"
+                      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
+                      onClick={() => onEnter(p.section)}
+                    >
+                      <div
+                        className="w-9 h-9 rounded-xl flex items-center justify-center mb-3 transition-colors"
+                        style={{ backgroundColor: p.lightColor }}
+                      >
+                        <f.icon
+                          className="w-4 h-4"
+                          style={{ color: p.color }}
+                        />
+                      </div>
+                      <p className="text-sm font-medium text-gray-700 leading-snug">
+                        {f.text}
+                      </p>
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      ))}
+
+      {/* UNIFIED INTELLIGENCE SECTION */}
+      <section
+        className="w-full py-28 px-6"
+        style={{ backgroundColor: "#1a1a2e" }}
+      >
+        <div className="max-w-7xl mx-auto text-center">
+          <Reveal>
+            <div
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-8"
+              style={{
+                backgroundColor: "rgba(66,133,244,0.15)",
+                color: "#4285f4",
+              }}
+            >
+              <Sparkles className="w-4 h-4" /> One platform. Three superpowers.
+            </div>
+          </Reveal>
+          <Reveal delay={80}>
+            <h2
+              className="text-5xl md:text-6xl font-black tracking-tight leading-tight mb-6"
+              style={{
+                fontFamily: "var(--font-playfair), Georgia, serif",
+                color: "#fff",
+              }}
+            >
+              Three tools.
+              <br />
+              <span style={{ color: "#4285f4" }}>
+                One brain behind all of them.
+              </span>
+            </h2>
+          </Reveal>
+          <Reveal delay={160}>
+            <p className="text-xl text-gray-400 font-light max-w-2xl mx-auto leading-relaxed mb-16">
+              Your ad data tells you what messages convert. That insight shapes
+              your content. Your content builds the audience your ads need. Your
+              video makes all of it feel human. ClickSpark is the thread
+              connecting all three.
+            </p>
+          </Reveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+            {[
+              {
+                title: "Your ads tell you what works",
+                body: "Campaign data reveals which messages, audiences, and offers actually convert. That signal should feed everything else you create.",
+                color: "#4285f4",
+                icon: BarChart2,
+              },
+              {
+                title: "Your content builds what ads can't buy",
+                body: "Organic reach, search rankings, email lists — owned channels that grow over time and make every rupee of ad spend go further.",
+                color: "#34a853",
+                icon: Globe,
+              },
+              {
+                title: "Your UGC makes it all feel real",
+                body: "Content that doesn't look like an ad. The kind people share, save, and trust. It runs quietly in the background while your paid campaigns close the deal.",
+                color: "#ea4335",
+                icon: Video,
+              },
+            ].map((item, i) => (
+              <Reveal key={item.title} delay={i * 80}>
+                <div
+                  className="p-8 rounded-2xl"
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                  }}
+                >
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center mb-5"
+                    style={{ backgroundColor: `${item.color}22` }}
+                  >
+                    <item.icon
+                      className="w-5 h-5"
+                      style={{ color: item.color }}
+                    />
+                  </div>
+                  <h3 className="font-bold text-white text-lg mb-3">
+                    {item.title}
+                  </h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">
+                    {item.body}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* STATS STRIP */}
+      <section className="w-full py-20 px-6 bg-white border-y border-gray-100">
+        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-10">
+          {[
+            {
+              value: "50+",
+              label: "Content formats, one brief",
+              color: "#1a73e8",
+            },
+            {
+              value: "5",
+              label: "Ad images generated per campaign",
+              color: "#0f9d58",
+            },
+            {
+              value: "A–F",
+              label: "Every campaign gets a grade",
+              color: "#f4511e",
+            },
+            {
+              value: "3",
+              label: "Marketing tools, one login",
+              color: "#f9ab00",
+            },
+          ].map((s, i) => (
+            <Reveal key={s.label} delay={i * 60}>
+              <div>
+                <p
+                  className="text-5xl font-black mb-2"
+                  style={{
+                    fontFamily: "var(--font-playfair), Georgia, serif",
+                    color: s.color,
+                  }}
+                >
+                  {s.value}
+                </p>
+                <p className="text-sm text-gray-500">{s.label}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section
+        className="w-full py-28 px-6"
+        style={{ backgroundColor: "#f8f9fa" }}
+      >
+        <div className="max-w-7xl mx-auto">
+          <Reveal>
+            <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">
+              How it works
             </p>
             <h2
-              className="text-4xl font-black tracking-tight text-gray-900 leading-tight mb-6"
+              className="text-5xl font-black tracking-tight text-gray-900 leading-tight mb-16 max-w-2xl"
               style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
             >
-              One topic.
+              Up and running
               <br />
-              50+ pieces of content.
+              in 5 minutes flat.
             </h2>
-            <p className="text-gray-500 leading-relaxed mb-6">
-              Enter a topic, set your audience and tone, and watch ClickSpark
-              generate a full content calendar across every major platform — in
-              minutes, not days.
-            </p>
-            <p className="text-gray-500 leading-relaxed mb-8">
-              Every piece is platform-native. LinkedIn posts read like LinkedIn
-              posts. Tweets are punchy. Blog articles are structured for SEO.
-              Emails are written to convert.
-            </p>
-            <button
-              onClick={() => onEnter("pipeline")}
-              className="inline-flex items-center gap-2 px-5 py-3 bg-black text-white rounded-xl text-sm font-semibold hover:bg-gray-800 transition-colors"
-            >
-              Open Content Pipeline <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            {CONTENT_TYPES.map((ct) => (
-              <div
-                key={ct.label}
-                onClick={() =>
-                  onEnter(ct.label.toLowerCase().replace(" ", "-"))
-                }
-                className="p-5 border border-gray-100 rounded-xl hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer group"
-              >
-                <ct.icon className="w-5 h-5 text-gray-400 mb-3 group-hover:text-gray-700 transition-colors" />
-                <p className="font-semibold text-gray-900 text-sm">
-                  {ct.label}
-                </p>
-                <p className="text-xs text-gray-400 mt-0.5">{ct.sub}</p>
-              </div>
+          </Reveal>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            {[
+              {
+                n: "01",
+                title: "Connect",
+                body: "Link your Google Ads and Meta accounts. Takes 2 minutes.",
+                color: "#1a73e8",
+                section: "integrations",
+              },
+              {
+                n: "02",
+                title: "Sync",
+                body: "Your live campaign data pulls in automatically and saves to your database.",
+                color: "#0f9d58",
+                section: "google-campaigns",
+              },
+              {
+                n: "03",
+                title: "Analyze",
+                body: "AI grades every campaign and tells you exactly what to do next.",
+                color: "#f4511e",
+                section: "analytics",
+              },
+              {
+                n: "04",
+                title: "Create",
+                body: "Generate ad images and content from a single brief.",
+                color: "#f9ab00",
+                section: "ad-creatives",
+              },
+              {
+                n: "05",
+                title: "Publish",
+                body: "Post across every channel. Build the audience you own.",
+                color: "#9c27b0",
+                section: "pipeline",
+              },
+            ].map((step, i) => (
+              <Reveal key={step.n} delay={i * 80}>
+                <div
+                  className="p-6 rounded-2xl bg-white border border-gray-100 hover:shadow-lg transition-all duration-300 cursor-pointer h-full"
+                  style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}
+                  onClick={() => onEnter(step.section)}
+                >
+                  <div
+                    className="text-3xl font-black mb-4"
+                    style={{
+                      fontFamily: "var(--font-playfair), Georgia, serif",
+                      color: step.color,
+                    }}
+                  >
+                    {step.n}
+                  </div>
+                  <h3 className="font-bold text-gray-900 text-lg mb-2">
+                    {step.title}
+                  </h3>
+                  <p className="text-sm text-gray-500 leading-relaxed">
+                    {step.body}
+                  </p>
+                </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* What's included */}
-      <section className="bg-gray-950 text-white py-28">
-        <div className="max-w-5xl mx-auto px-8">
+      {/* CONTENT FORMATS GRID */}
+      <section className="w-full py-28 px-6 bg-white">
+        <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
             <div>
-              <p className="text-xs uppercase tracking-widest text-gray-500 font-semibold mb-4">
-                What's included
-              </p>
-              <h2
-                className="text-4xl font-black tracking-tight leading-tight mb-6"
-                style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
-              >
-                Built for teams
-                <br />
-                that move fast.
-              </h2>
-              <p className="text-gray-400 leading-relaxed text-lg font-light">
-                ClickSpark isn't a reporting tool. It's an action platform.
-                Every insight comes with a specific next step. Every creative is
-                ready to deploy.
-              </p>
-            </div>
-            <ul className="space-y-3 pt-2">
-              {WHATS_INCLUDED.map((item) => (
-                <li
-                  key={item}
-                  className="flex items-start gap-3 text-sm text-gray-300"
+              <Reveal>
+                <p className="text-xs font-bold tracking-widest uppercase text-gray-400 mb-4">
+                  Content Engine
+                </p>
+                <h2
+                  className="text-5xl font-black tracking-tight text-gray-900 leading-tight mb-6"
+                  style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
                 >
-                  <CheckCircle className="w-4 h-4 text-green-500 shrink-0 mt-0.5" />
-                  {item}
-                </li>
+                  One topic.
+                  <br />
+                  Everywhere it needs to be.
+                </h2>
+                <p className="text-lg text-gray-500 leading-relaxed mb-8">
+                  Type a topic. ClickSpark writes the LinkedIn post, the tweet
+                  thread, the blog article, the SEO piece, and the email — all
+                  at once, all in your voice. The brands that win aren't the
+                  ones with the biggest ad budgets. They're the ones that show
+                  up everywhere, consistently.
+                </p>
+                <button
+                  onClick={() => onEnter("pipeline")}
+                  className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-base font-semibold text-white shadow-md hover:shadow-xl transition-all"
+                  style={{ backgroundColor: "#0f9d58" }}
+                >
+                  Start publishing <ArrowRight className="w-4 h-4" />
+                </button>
+              </Reveal>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                {
+                  icon: MessageSquare,
+                  label: "LinkedIn Writer",
+                  sub: "Professional posts that drive engagement",
+                  section: "linkedin",
+                  color: "#0077b5",
+                },
+                {
+                  icon: Zap,
+                  label: "Twitter / X",
+                  sub: "Punchy, shareable, algorithm-friendly",
+                  section: "twitter",
+                  color: "#1da1f2",
+                },
+                {
+                  icon: FileText,
+                  label: "Blog Writer",
+                  sub: "Long-form, structured, SEO-ready",
+                  section: "blog",
+                  color: "#ff6d00",
+                },
+                {
+                  icon: Search,
+                  label: "SEO Articles",
+                  sub: "Keyword-optimized, rank-worthy content",
+                  section: "seo",
+                  color: "#1a73e8",
+                },
+                {
+                  icon: Globe,
+                  label: "GEO Optimizer",
+                  sub: "Visible in AI search engines",
+                  section: "geo",
+                  color: "#0f9d58",
+                },
+                {
+                  icon: Mail,
+                  label: "Email Writer",
+                  sub: "Cold outreach & nurture sequences",
+                  section: "email",
+                  color: "#ea4335",
+                },
+              ].map((item, i) => (
+                <Reveal key={item.label} delay={i * 50}>
+                  <div
+                    className="p-5 rounded-2xl border border-gray-100 bg-white hover:shadow-md transition-all duration-300 cursor-pointer"
+                    style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
+                    onClick={() => onEnter(item.section)}
+                  >
+                    <item.icon
+                      className="w-5 h-5 mb-3"
+                      style={{ color: item.color }}
+                    />
+                    <p className="font-semibold text-gray-900 text-sm">
+                      {item.label}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5 leading-snug">
+                      {item.sub}
+                    </p>
+                  </div>
+                </Reveal>
               ))}
-            </ul>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="py-32">
-        <div className="max-w-3xl mx-auto px-8 text-center">
-          <p className="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-6">
-            Get started
-          </p>
-          <h2
-            className="text-6xl font-black tracking-tight text-gray-900 leading-tight mb-6"
-            style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
-          >
-            Ready to see what's
-            <br />
-            actually working?
-          </h2>
-          <p className="text-xl text-gray-400 mb-12 font-light leading-relaxed">
-            Connect your first ad account in under 2 minutes. Your campaigns,
-            scored and analyzed, waiting for you.
-          </p>
-          <div className="flex items-center justify-center gap-4 flex-wrap">
-            <button
-              onClick={() => onEnter("analytics")}
-              className="inline-flex items-center gap-2.5 px-8 py-4 bg-black text-white rounded-xl text-base font-semibold hover:bg-gray-800 transition-colors"
+      {/* FINAL CTA */}
+      <section
+        className="w-full py-32 px-6"
+        style={{ backgroundColor: "#1a73e8" }}
+      >
+        <div className="max-w-7xl mx-auto text-center">
+          <Reveal>
+            <h2
+              className="text-6xl font-black tracking-tight leading-tight mb-6 text-white"
+              style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
             >
-              Get Started <ArrowRight className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => onEnter("integrations")}
-              className="inline-flex items-center gap-2.5 px-8 py-4 border border-gray-200 text-gray-700 rounded-xl text-base font-semibold hover:border-gray-400 transition-colors"
-            >
-              Connect Ad Accounts
-            </button>
-          </div>
-          <p className="text-sm text-gray-400 mt-8">
-            No credit card. No setup fee. Your data stays in your database.
-          </p>
+              Your marketing,
+              <br />
+              finally working together.
+            </h2>
+            <p className="text-xl text-blue-100 font-light max-w-xl mx-auto leading-relaxed mb-12">
+              Smarter ads. Content that compounds. Video that earns trust. One
+              platform, one brief, one brand voice.
+            </p>
+            <div className="flex items-center justify-center gap-4 flex-wrap">
+              <button
+                onClick={() => onEnter("analytics")}
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-base font-bold bg-white text-blue-600 hover:shadow-xl transition-all"
+              >
+                Get started free <ArrowRight className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => onEnter("integrations")}
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-full text-base font-bold border-2 border-white/40 text-white hover:border-white transition-all"
+              >
+                Connect ad accounts
+              </button>
+            </div>
+            <p className="text-sm text-blue-200 mt-8">
+              Your data stays in your database. Always.
+            </p>
+          </Reveal>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-100 py-10 px-8">
-        <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-4">
+      {/* FOOTER */}
+      <footer className="w-full py-10 px-6 bg-white border-t border-gray-100">
+        <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-6">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 bg-black rounded-lg flex items-center justify-center">
+            <div
+              className="w-7 h-7 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: "#1a73e8" }}
+            >
               <Zap className="w-3.5 h-3.5 text-white" />
             </div>
             <span className="font-bold text-gray-900">ClickSpark AI</span>
           </div>
           <div className="flex items-center gap-8 text-sm text-gray-400">
-            <span
-              className="cursor-pointer hover:text-gray-700 transition-colors"
-              onClick={() => onEnter("analytics")}
-            >
-              Analytics
-            </span>
-            <span
-              className="cursor-pointer hover:text-gray-700 transition-colors"
-              onClick={() => onEnter("ad-creatives")}
-            >
-              Ad Creatives
-            </span>
-            <span
-              className="cursor-pointer hover:text-gray-700 transition-colors"
-              onClick={() => onEnter("pipeline")}
-            >
-              Content
-            </span>
-            <span
-              className="cursor-pointer hover:text-gray-700 transition-colors"
-              onClick={() => onEnter("integrations")}
-            >
-              Integrations
-            </span>
+            {[
+              ["Ad Intelligence", "analytics"],
+              ["Ad Creatives", "ad-creatives"],
+              ["Content Engine", "pipeline"],
+              ["AI Video & UGC", "ai-writer"],
+              ["Integrations", "integrations"],
+            ].map(([l, s]) => (
+              <button
+                key={l}
+                onClick={() => onEnter(s)}
+                className="hover:text-gray-700 transition-colors"
+              >
+                {l}
+              </button>
+            ))}
           </div>
           <p className="text-xs text-gray-400">
-            Marketing intelligence. No fluff.
+            One intelligence. Three pipelines.
           </p>
         </div>
       </footer>
