@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { RefreshCw, AlertCircle, Trash2, Wifi, WifiOff } from "lucide-react";
+import { RefreshCw, AlertCircle, WifiOff } from "lucide-react";
 import { SectionHeader, EmptyState, GenerateButton } from "@/components/shared";
 
 interface CampaignMetrics {
@@ -68,30 +68,71 @@ export default function MetaCampaigns() {
   const [days, setDays] = useState("30");
   const [fetched, setFetched] = useState(false);
   const [lastFetched, setLastFetched] = useState<string | null>(null);
+  const [dbLoading, setDbLoading] = useState(true);
 
+  // Load from DB on mount
   useEffect(() => {
-    try {
-      const cached = localStorage.getItem("meta_campaigns");
-      if (cached) {
-        const {
-          account: a,
-          campaigns: c,
-          totals: t,
-          dateRange: dr,
-          availableAccounts: aa,
-          fetchedAt,
-        } = JSON.parse(cached);
-        setAccount(a);
-        setCampaigns(c);
-        setTotals(t);
-        setDateRange(dr);
-        if (aa) setAvailableAccounts(aa);
-        setLastFetched(fetchedAt);
-        setFetched(true);
+    (async () => {
+      try {
+        const res = await fetch("/api/campaigns/cached");
+        const data = await res.json();
+        const meta = (data.campaigns || []).filter(
+          (c: { platform: string }) => c.platform === "facebook",
+        );
+        if (meta.length > 0) {
+          const mapped: MetaCampaign[] = meta.map((c: any) => ({
+            id: c.campaign_id,
+            name: c.campaign_name,
+            objective: c.objective || "",
+            status: c.status,
+            dailyBudget: c.daily_budget ? Number(c.daily_budget) : null,
+            lifetimeBudget: c.lifetime_budget
+              ? Number(c.lifetime_budget)
+              : null,
+            startTime: null,
+            stopTime: null,
+            createdTime: c.fetched_at,
+            metrics: c.raw_metrics
+              ? {
+                  impressions: Number(c.impressions) || 0,
+                  clicks: Number(c.clicks) || 0,
+                  spend: Number(c.spend) || 0,
+                  cpc: Number(c.cpc) || 0,
+                  cpm: Number(c.cpm) || 0,
+                  ctr: Number(c.ctr) || 0,
+                  reach: Number(c.reach) || 0,
+                  frequency: Number(c.frequency) || 0,
+                }
+              : null,
+          }));
+          setCampaigns(mapped);
+          const totalSpend = mapped.reduce(
+            (s, c) => s + (c.metrics?.spend || 0),
+            0,
+          );
+          setTotals({
+            totalSpend,
+            totalImpressions: mapped.reduce(
+              (s, c) => s + (c.metrics?.impressions || 0),
+              0,
+            ),
+            totalClicks: mapped.reduce(
+              (s, c) => s + (c.metrics?.clicks || 0),
+              0,
+            ),
+            totalReach: mapped.reduce((s, c) => s + (c.metrics?.reach || 0), 0),
+            campaignCount: mapped.length,
+            activeCampaigns: mapped.filter((c) => c.status === "ACTIVE").length,
+          });
+          setLastFetched(new Date(meta[0].fetched_at).toLocaleString());
+          setFetched(true);
+        }
+      } catch {
+        /* ignore */
+      } finally {
+        setDbLoading(false);
       }
-    } catch {
-      /* ignore */
-    }
+    })();
   }, []);
 
   const fetchCampaigns = async () => {
@@ -111,20 +152,8 @@ export default function MetaCampaigns() {
       setTotals(data.totals);
       setDateRange(data.dateRange);
       if (data.availableAccounts) setAvailableAccounts(data.availableAccounts);
-      const fetchedAt = new Date().toLocaleString();
-      setLastFetched(fetchedAt);
+      setLastFetched(new Date().toLocaleString());
       setFetched(true);
-      localStorage.setItem(
-        "meta_campaigns",
-        JSON.stringify({
-          account: data.account,
-          campaigns: data.campaigns,
-          totals: data.totals,
-          dateRange: data.dateRange,
-          availableAccounts: data.availableAccounts || [],
-          fetchedAt,
-        }),
-      );
     } catch (e) {
       setError("Failed to connect to Meta API");
       console.error(e);
@@ -133,32 +162,12 @@ export default function MetaCampaigns() {
     }
   };
 
-  const clearCache = () => {
-    localStorage.removeItem("meta_campaigns");
-    setAccount(null);
-    setCampaigns([]);
-    setTotals(null);
-    setDateRange(null);
-    setFetched(false);
-    setLastFetched(null);
-  };
-
   return (
     <div>
       <SectionHeader
         icon={<RefreshCw className="w-5 h-5 text-blue-600" />}
         title="Meta Ad Campaigns"
-        description={
-          <>
-            {`Live data from your Meta Ad Account${account ? ` — ${account.name} (${account.currency})` : ""}`}
-            {lastFetched && (
-              <span className="ml-3 inline-flex items-center gap-1 text-green-600">
-                <Wifi className="w-3 h-3" />
-                Cached · {lastFetched}
-              </span>
-            )}
-          </>
-        }
+        description={`Live data from your Meta Ad Account${account ? ` — ${account.name} (${account.currency})` : ""}${lastFetched ? ` · Synced ${lastFetched}` : ""}`}
       />
 
       {/* Controls */}
@@ -194,14 +203,6 @@ export default function MetaCampaigns() {
           label="Fetch Campaigns"
           loadingLabel="Fetching from Meta..."
         />
-        {fetched && (
-          <button
-            onClick={clearCache}
-            className="inline-flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 hover:text-red-600 border border-gray-200 rounded-lg hover:border-red-200 transition-colors"
-          >
-            <Trash2 className="w-3.5 h-3.5" /> Clear cache
-          </button>
-        )}
         {dateRange && (
           <span className="text-xs text-gray-500">
             {dateRange.since} → {dateRange.until}
@@ -226,8 +227,37 @@ export default function MetaCampaigns() {
         </div>
       )}
 
+      {/* DB loading skeleton */}
+      {dbLoading && (
+        <div className="space-y-2">
+          <div className="grid grid-cols-4 gap-4 mb-6">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-xl p-4 border border-gray-200 animate-pulse"
+              >
+                <div className="h-2.5 bg-gray-200 rounded w-1/2 mb-3" />
+                <div className="h-6 bg-gray-200 rounded w-3/4" />
+              </div>
+            ))}
+          </div>
+          <div className="bg-white rounded-xl border border-gray-200 overflow-hidden animate-pulse">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-4 p-3 border-b border-gray-100"
+              >
+                <div className="h-3 bg-gray-200 rounded w-1/3" />
+                <div className="h-3 bg-gray-100 rounded w-16" />
+                <div className="h-3 bg-gray-100 rounded w-20 ml-auto" />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Empty state */}
-      {!loading && campaigns.length === 0 && !error && (
+      {!dbLoading && !loading && campaigns.length === 0 && !error && (
         <EmptyState
           icon={<WifiOff className="w-10 h-10 text-gray-400" />}
           message="Click 'Fetch Campaigns' to load your Meta Ad Account data"
@@ -243,7 +273,7 @@ export default function MetaCampaigns() {
       )}
 
       {/* Results */}
-      {!loading && totals && campaigns.length > 0 && (
+      {!loading && !dbLoading && totals && campaigns.length > 0 && (
         <>
           {/* Summary cards */}
           <div className="grid grid-cols-4 gap-4 mb-6">

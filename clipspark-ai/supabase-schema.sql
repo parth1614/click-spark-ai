@@ -117,8 +117,40 @@ CREATE TABLE IF NOT EXISTS campaign_alerts (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Ad creatives table
-CREATE TABLE IF NOT EXISTS ad_creatives (
+-- Ad campaigns cache (synced from Google/Meta APIs)
+CREATE TABLE IF NOT EXISTS ad_campaigns_cache (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  platform TEXT NOT NULL,                        -- 'google' | 'facebook'
+  account_key TEXT NOT NULL DEFAULT 'default',   -- e.g. 'tradewise', 'astrolearn'
+  campaign_id TEXT NOT NULL,
+  campaign_name TEXT NOT NULL,
+  status TEXT,
+  channel_type TEXT,
+  objective TEXT,
+  daily_budget DECIMAL,
+  lifetime_budget DECIMAL,
+  impressions BIGINT DEFAULT 0,
+  clicks BIGINT DEFAULT 0,
+  spend DECIMAL DEFAULT 0,
+  ctr DECIMAL DEFAULT 0,
+  cpc DECIMAL,
+  cpm DECIMAL,
+  reach BIGINT,
+  frequency DECIMAL,
+  raw_metrics JSONB,
+  fetched_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(platform, campaign_id)
+);
+
+-- AI campaign analysis results
+CREATE TABLE IF NOT EXISTS campaign_analysis (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  analysis_result JSONB NOT NULL,
+  campaign_count INTEGER,
+  total_spend DECIMAL,
+  platforms TEXT[],
+  created_at TIMESTAMP DEFAULT NOW()
+);
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
   platform TEXT NOT NULL,

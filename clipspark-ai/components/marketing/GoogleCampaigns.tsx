@@ -8,7 +8,6 @@ import {
   MousePointerClick,
   DollarSign,
   BarChart2,
-  Trash2,
   Wifi,
   WifiOff,
 } from "lucide-react";
@@ -91,26 +90,41 @@ export default function GoogleCampaigns() {
   const [error, setError] = useState<string | null>(null);
   const [fetched, setFetched] = useState(false);
   const [lastFetched, setLastFetched] = useState<string | null>(null);
+  const [dbLoading, setDbLoading] = useState(true);
 
+  // Load from DB on mount
   useEffect(() => {
-    try {
-      const cached = localStorage.getItem("google_campaigns");
-      if (cached) {
-        const {
-          campaigns: c,
-          customerId: id,
-          accountLabel: al,
-          fetchedAt,
-        } = JSON.parse(cached);
-        setCampaigns(c);
-        setCustomerId(id);
-        if (al) setAccountLabel(al);
-        setLastFetched(fetchedAt);
-        setFetched(true);
+    (async () => {
+      try {
+        const res = await fetch("/api/campaigns/cached");
+        const data = await res.json();
+        const google = (data.campaigns || []).filter(
+          (c: { platform: string }) => c.platform === "google",
+        );
+        if (google.length > 0) {
+          setCampaigns(
+            google.map((c: any) => ({
+              id: c.campaign_id,
+              name: c.campaign_name,
+              status: c.status,
+              channelType: c.channel_type || "",
+              metrics: {
+                impressions: Number(c.impressions) || 0,
+                clicks: Number(c.clicks) || 0,
+                spend: Number(c.spend) || 0,
+                ctr: String(Number(c.ctr || 0).toFixed(2)),
+              },
+            })),
+          );
+          setLastFetched(new Date(google[0].fetched_at).toLocaleString());
+          setFetched(true);
+        }
+      } catch {
+        /* ignore */
+      } finally {
+        setDbLoading(false);
       }
-    } catch {
-      /* ignore */
-    }
+    })();
   }, []);
 
   const fetchCampaigns = async () => {
@@ -125,36 +139,18 @@ export default function GoogleCampaigns() {
         setError(data.error);
         return;
       }
-      const fetchedAt = new Date().toLocaleString();
       setCampaigns(data.campaigns || []);
       setCustomerId(data.customerId || "");
       setAccountLabel(data.accountLabel || "");
       if (data.availableAccounts) setAvailableAccounts(data.availableAccounts);
-      setLastFetched(fetchedAt);
+      setLastFetched(new Date().toLocaleString());
       setFetched(true);
-      localStorage.setItem(
-        "google_campaigns",
-        JSON.stringify({
-          campaigns: data.campaigns || [],
-          customerId: data.customerId || "",
-          accountLabel: data.accountLabel || "",
-          fetchedAt,
-        }),
-      );
     } catch (e) {
       setError("Failed to reach Google Ads API");
       console.error(e);
     } finally {
       setLoading(false);
     }
-  };
-
-  const clearCache = () => {
-    localStorage.removeItem("google_campaigns");
-    setCampaigns([]);
-    setCustomerId("");
-    setFetched(false);
-    setLastFetched(null);
   };
 
   const totalSpend = campaigns.reduce((s, c) => s + c.metrics.spend, 0);
@@ -183,7 +179,7 @@ export default function GoogleCampaigns() {
             {lastFetched && (
               <span className="ml-3 inline-flex items-center gap-1 text-green-600">
                 <Wifi className="w-3 h-3" />
-                Cached · {lastFetched}
+                Synced · {lastFetched}
               </span>
             )}
           </p>
@@ -201,14 +197,6 @@ export default function GoogleCampaigns() {
                 </option>
               ))}
             </select>
-          )}
-          {fetched && (
-            <button
-              onClick={clearCache}
-              className="inline-flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 hover:text-red-600 border border-gray-200 rounded-lg hover:border-red-200 transition-colors"
-            >
-              <Trash2 className="w-3.5 h-3.5" /> Clear cache
-            </button>
           )}
           <button
             onClick={fetchCampaigns}
@@ -236,8 +224,39 @@ export default function GoogleCampaigns() {
         </div>
       )}
 
-      {/* Empty / loading */}
-      {!fetched && !loading && !error && (
+      {/* DB loading skeleton */}
+      {dbLoading && (
+        <div className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div
+              key={i}
+              className="bg-white rounded-xl border border-gray-200 overflow-hidden animate-pulse"
+            >
+              <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-gray-200" />
+                  <div className="space-y-1.5">
+                    <div className="h-3.5 bg-gray-200 rounded w-48" />
+                    <div className="h-2.5 bg-gray-100 rounded w-24" />
+                  </div>
+                </div>
+                <div className="h-6 bg-gray-100 rounded w-16" />
+              </div>
+              <div className="grid grid-cols-4 divide-x divide-gray-100">
+                {Array.from({ length: 4 }).map((_, j) => (
+                  <div key={j} className="px-5 py-4 space-y-2">
+                    <div className="h-2.5 bg-gray-100 rounded w-12" />
+                    <div className="h-5 bg-gray-200 rounded w-20" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Empty / no data */}
+      {!dbLoading && !fetched && !loading && !error && (
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <div className="p-4 bg-gray-100 rounded-2xl mb-4">
             <WifiOff className="w-8 h-8 text-gray-400" />
@@ -259,7 +278,7 @@ export default function GoogleCampaigns() {
         </div>
       )}
 
-      {!loading && fetched && (
+      {!loading && fetched && !dbLoading && (
         <>
           {/* Summary metrics */}
           <div className="grid grid-cols-4 gap-4 mb-6">

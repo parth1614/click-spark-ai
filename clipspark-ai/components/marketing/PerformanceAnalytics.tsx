@@ -42,54 +42,6 @@ interface CampaignRow {
   ctr: number;
 }
 
-function loadFromCache(): { campaigns: CampaignRow[]; sources: string[] } {
-  const campaigns: CampaignRow[] = [];
-  const sources: string[] = [];
-  try {
-    const google = localStorage.getItem("google_campaigns");
-    if (google) {
-      const { campaigns: gc } = JSON.parse(google);
-      (gc as any[]).forEach((c) =>
-        campaigns.push({
-          id: `g_${c.id}`,
-          name: c.name,
-          platform: "google",
-          status: c.status,
-          spend: c.metrics?.spend ?? 0,
-          impressions: c.metrics?.impressions ?? 0,
-          clicks: c.metrics?.clicks ?? 0,
-          ctr: parseFloat(c.metrics?.ctr ?? "0"),
-        }),
-      );
-      sources.push("Google Ads");
-    }
-  } catch {
-    /* ignore */
-  }
-  try {
-    const meta = localStorage.getItem("meta_campaigns");
-    if (meta) {
-      const { campaigns: mc } = JSON.parse(meta);
-      (mc as any[]).forEach((c) =>
-        campaigns.push({
-          id: `m_${c.id}`,
-          name: c.name,
-          platform: "facebook",
-          status: c.status,
-          spend: c.metrics?.spend ?? 0,
-          impressions: c.metrics?.impressions ?? 0,
-          clicks: c.metrics?.clicks ?? 0,
-          ctr: c.metrics?.ctr ?? 0,
-        }),
-      );
-      sources.push("Meta Ads");
-    }
-  } catch {
-    /* ignore */
-  }
-  return { campaigns, sources };
-}
-
 const PLATFORM_COLORS = { google: "#16a34a", facebook: "#2563eb" };
 
 export default function PerformanceAnalytics() {
@@ -101,11 +53,42 @@ export default function PerformanceAnalytics() {
   );
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [insightsLoading, setInsightsLoading] = useState(false);
+  const [dbLoading, setDbLoading] = useState(true);
+  const [analysisCreatedAt, setAnalysisCreatedAt] = useState<string | null>(
+    null,
+  );
 
-  const reload = () => {
-    const { campaigns: c, sources: s } = loadFromCache();
-    setCampaigns(c);
-    setSources(s);
+  const reload = async () => {
+    setDbLoading(true);
+    try {
+      const res = await fetch("/api/campaigns/cached");
+      const data = await res.json();
+      if (data.campaigns?.length) {
+        const rows: CampaignRow[] = (data.campaigns as any[]).map((c) => ({
+          id: c.campaign_id,
+          name: c.campaign_name,
+          platform: c.platform as "facebook" | "google",
+          status: c.status,
+          spend: Number(c.spend) || 0,
+          impressions: Number(c.impressions) || 0,
+          clicks: Number(c.clicks) || 0,
+          ctr: Number(c.ctr) || 0,
+        }));
+        setCampaigns(rows);
+        const s: string[] = [];
+        if (rows.some((r) => r.platform === "google")) s.push("Google Ads");
+        if (rows.some((r) => r.platform === "facebook")) s.push("Meta Ads");
+        setSources(s);
+      }
+      if (data.latestAnalysis) {
+        setAnalysis(data.latestAnalysis);
+        setAnalysisCreatedAt(data.analysisCreatedAt);
+      }
+    } catch (e) {
+      console.error("Failed to load from DB:", e);
+    } finally {
+      setDbLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -219,11 +202,17 @@ export default function PerformanceAnalytics() {
       </div>
 
       {/* No data */}
-      {!hasCampaigns && (
+      {!hasCampaigns && !dbLoading && (
         <EmptyState
           icon={<WifiOff className="w-10 h-10 text-gray-400" />}
-          message="No cached data found. Fetch campaigns in the Google Ads or Meta Ads tabs first."
+          message="No campaigns in database. Fetch campaigns from the Google Ads or Meta Ads tabs first."
         />
+      )}
+      {dbLoading && (
+        <div className="flex items-center justify-center py-16 text-gray-400 gap-3">
+          <div className="w-6 h-6 border-3 border-blue-400 border-t-transparent rounded-full animate-spin" />
+          Loading from database...
+        </div>
       )}
 
       {/* ── OVERVIEW TAB ── */}
@@ -244,7 +233,7 @@ export default function PerformanceAnalytics() {
               onClick={reload}
               className="inline-flex items-center gap-2 px-3 py-2 text-sm text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              <RefreshCw className="w-3.5 h-3.5" /> Reload
+              <RefreshCw className="w-3.5 h-3.5" /> Reload from DB
             </button>
           </div>
 
@@ -465,6 +454,11 @@ export default function PerformanceAnalytics() {
               <p className="text-sm text-gray-500 mt-1">
                 Scores all {campaigns.length} campaigns, surfaces
                 positives/negatives, and gives prioritized optimization actions.
+                {analysisCreatedAt && (
+                  <span className="ml-2 text-xs text-green-600">
+                    Last run: {new Date(analysisCreatedAt).toLocaleString()}
+                  </span>
+                )}
               </p>
               <button
                 onClick={generateInsights}

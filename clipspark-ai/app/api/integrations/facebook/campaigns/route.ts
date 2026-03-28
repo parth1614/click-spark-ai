@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { supabase } from "@/lib/supabase";
 
 const FB_API = "https://graph.facebook.com/v18.0";
 
@@ -145,6 +146,33 @@ export async function GET(req: NextRequest) {
       campaignCount: campaigns.length,
       activeCampaigns: campaigns.filter((c) => c.status === "ACTIVE").length,
     };
+
+    // Upsert to DB
+    if (campaigns.length > 0) {
+      const rows_to_upsert = campaigns.map((c) => ({
+        platform: "facebook",
+        account_key: accountId,
+        campaign_id: c.id,
+        campaign_name: c.name,
+        status: c.status,
+        objective: c.objective,
+        daily_budget: c.dailyBudget,
+        lifetime_budget: c.lifetimeBudget,
+        impressions: c.metrics?.impressions ?? 0,
+        clicks: c.metrics?.clicks ?? 0,
+        spend: c.metrics?.spend ?? 0,
+        ctr: c.metrics?.ctr ?? 0,
+        cpc: c.metrics?.cpc ?? null,
+        cpm: c.metrics?.cpm ?? null,
+        reach: c.metrics?.reach ?? null,
+        frequency: c.metrics?.frequency ?? null,
+        raw_metrics: c.metrics,
+        fetched_at: new Date().toISOString(),
+      }));
+      await supabase
+        .from("ad_campaigns_cache")
+        .upsert(rows_to_upsert, { onConflict: "platform,campaign_id" });
+    }
 
     return NextResponse.json({
       account: {

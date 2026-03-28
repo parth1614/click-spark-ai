@@ -44,6 +44,19 @@ interface NavGroup {
 
 const NAV_GROUPS: NavGroup[] = [
   {
+    title: "Marketing Engine",
+    items: [
+      { id: "analytics", label: "Analytics", Icon: TrendingUp },
+      { id: "meta-campaigns", label: "Meta Ads (Live)", Icon: Radio },
+      { id: "google-campaigns", label: "Google Ads (Live)", Icon: Search },
+      { id: "optimization", label: "AI Optimizer", Icon: Brain },
+      { id: "ad-creatives", label: "Ad Creatives", Icon: Palette },
+      { id: "campaigns", label: "Campaigns", Icon: BarChart3 },
+      { id: "alerts", label: "Alerts", Icon: Bell },
+      { id: "integrations", label: "Integrations", Icon: Settings },
+    ],
+  },
+  {
     title: "Content Factory",
     items: [
       { id: "pipeline", label: "Content Pipeline", Icon: Zap },
@@ -54,19 +67,6 @@ const NAV_GROUPS: NavGroup[] = [
       { id: "geo", label: "GEO Optimizer", Icon: Bot },
       { id: "email", label: "Email Writer", Icon: Mail },
       { id: "ai-writer", label: "AI Writer Studio", Icon: Sparkles },
-    ],
-  },
-  {
-    title: "Marketing Engine",
-    items: [
-      { id: "ad-creatives", label: "Ad Creatives", Icon: Palette },
-      { id: "campaigns", label: "Campaigns", Icon: BarChart3 },
-      { id: "meta-campaigns", label: "Meta Ads (Live)", Icon: Radio },
-      { id: "google-campaigns", label: "Google Ads (Live)", Icon: Search },
-      { id: "analytics", label: "Analytics", Icon: TrendingUp },
-      { id: "optimization", label: "AI Optimizer", Icon: Brain },
-      { id: "alerts", label: "Alerts", Icon: Bell },
-      { id: "integrations", label: "Integrations", Icon: Settings },
     ],
   },
 ];
@@ -86,7 +86,7 @@ export default function Sidebar({
     <aside className="w-64 bg-white border-r border-gray-200 min-h-screen p-4 flex flex-col shrink-0">
       <div className="mb-6">
         <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <Zap className="w-5 h-5 text-yellow-600" /> ClipSpark AI
+          <Zap className="w-5 h-5 text-yellow-600" /> ClickSpark AI
         </h1>
         <p className="text-xs text-gray-500 mt-1">
           AI Content & Marketing Factory

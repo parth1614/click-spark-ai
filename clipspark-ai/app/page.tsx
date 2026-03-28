@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import LandingPage from "@/components/LandingPage";
 import Sidebar, { type NavSection } from "@/components/Sidebar";
 import PipelineView from "@/components/writers/PipelineView";
 import LinkedInWriter from "@/components/writers/LinkedInWriter";
@@ -39,7 +40,20 @@ const SECTIONS: Record<NavSection, React.ComponentType> = {
 };
 
 export default function Home() {
-  const [section, setSection] = useState<NavSection>("pipeline");
+  const [showDashboard, setShowDashboard] = useState(false);
+  const [section, setSection] = useState<NavSection>("analytics");
+
+  const handleEnter = (target?: string) => {
+    if (target && target in SECTIONS) {
+      setSection(target as NavSection);
+    }
+    setShowDashboard(true);
+  };
+
+  if (!showDashboard) {
+    return <LandingPage onEnter={handleEnter} />;
+  }
+
   const ActiveSection = SECTIONS[section];
 
   return (

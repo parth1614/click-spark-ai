@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { analyzeCampaignPerformance } from "@/skills/campaign-performance-analyzer";
+import { supabase } from "@/lib/supabase";
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,6 +16,16 @@ export async function POST(req: NextRequest) {
       targetRoas: targetRoas || 3,
       targetCpa: targetCpa || 500,
       totalBudget: totalBudget || 0,
+    });
+
+    // Save analysis to DB
+    await supabase.from("campaign_analysis").insert({
+      analysis_result: result,
+      campaign_count: campaigns.length,
+      total_spend: totalBudget || 0,
+      platforms: Array.from(
+        new Set(campaigns.map((c: { platform: string }) => c.platform)),
+      ),
     });
 
     return NextResponse.json({ analysis: result });
