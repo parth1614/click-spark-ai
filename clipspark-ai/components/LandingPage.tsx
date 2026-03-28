@@ -373,7 +373,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
     show: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6, ease: "easeOut" },
+      transition: { duration: 0.6, ease: "easeOut" as const },
     },
   };
 
@@ -390,7 +390,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-white shadow-md" : "bg-transparent"}`}
         initial={{ y: -80 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
+        transition={{ duration: 0.5, ease: "easeOut" as const }}
       >
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <motion.div
@@ -667,7 +667,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
                 initial={{ opacity: 0, x: idx % 2 === 0 ? -40 : 40 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.7, ease: "easeOut" }}
+                transition={{ duration: 0.7, ease: "easeOut" as const }}
               >
                 <div
                   className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold tracking-widest uppercase mb-6"
