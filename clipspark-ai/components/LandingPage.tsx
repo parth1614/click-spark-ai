@@ -471,18 +471,18 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
                 style={{ color: "#1a73e8" }}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4, duration: 0.6 }}
-              >
-                Publish everywhere.
-              </motion.span>
-              <br />
-              <motion.span
-                style={{ color: "#f4511e" }}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.6, duration: 0.6 }}
               >
                 Build real trust.
+              </motion.span>
+              <br />
+              <motion.span
+                style={{ color: "#000000ff" }}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4, duration: 0.6 }}
+              >
+                Publish everywhere.
               </motion.span>
             </motion.h1>
 
@@ -1121,7 +1121,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
       {/* FINAL CTA */}
       <section
         className="w-full py-32 px-6"
-        style={{ backgroundColor: "#1a73e8" }}
+        style={{ backgroundColor: "#005df3ff" }}
       >
         <div className="max-w-7xl mx-auto text-center">
           <motion.div
