@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { SectionHeader, EmptyState, GenerateButton } from "@/components/shared";
+import CountrySelect from "@/components/CountrySelect";
 import type { AdCreativeResult } from "@/skills/ad-creative-generator";
 
 type Platform = "facebook" | "google_display" | "instagram";
@@ -49,7 +50,6 @@ export default function AdCreativeGenerator() {
   // Audience
   const [ageBracket, setAgeBracket] = useState("25-44");
   const [countries, setCountries] = useState<string[]>(["United States"]);
-  const [countryInput, setCountryInput] = useState("");
   const [regions, setRegions] = useState<string[]>([]);
   const [regionInput, setRegionInput] = useState("");
   const [genderRatio, setGenderRatio] = useState("");
@@ -211,40 +211,7 @@ export default function AdCreativeGenerator() {
             <label className="text-xs text-gray-500 mb-1.5 block">
               Target Countries
             </label>
-            <div className="flex gap-2 flex-wrap mb-2">
-              {countries.map((c) => (
-                <span
-                  key={c}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 text-blue-700 rounded-full text-xs"
-                >
-                  {c}
-                  <button onClick={() => removeTag(countries, setCountries, c)}>
-                    <X className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={countryInput}
-                onChange={(e) => setCountryInput(e.target.value)}
-                onKeyDown={(e) =>
-                  e.key === "Enter" &&
-                  addTag(countries, setCountries, countryInput, setCountryInput)
-                }
-                placeholder="Add country and press Enter"
-                className="flex-1 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button
-                onClick={() =>
-                  addTag(countries, setCountries, countryInput, setCountryInput)
-                }
-                className="p-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-            </div>
+            <CountrySelect value={countries} onChange={setCountries} />
           </div>
 
           {/* States / Cities */}

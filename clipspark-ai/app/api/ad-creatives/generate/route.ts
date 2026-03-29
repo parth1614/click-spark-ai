@@ -44,14 +44,8 @@ async function uploadCreativeImage(
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const {
-      sourceContent,
-      platform,
-      objective,
-      audience,
-      productService,
-      projectId,
-    } = body;
+    const { sourceContent, platform, objective, audience, productService } =
+      body;
 
     if (
       !sourceContent ||
@@ -97,7 +91,6 @@ export async function POST(req: NextRequest) {
           const { data: dbRow, error: dbError } = await supabase
             .from("ad_creatives")
             .insert({
-              project_id: projectId ?? null,
               platform,
               creative_type: "image",
               storage_url: publicUrl,

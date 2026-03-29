@@ -194,3 +194,14 @@ CREATE TABLE IF NOT EXISTS ad_creatives (
   metadata JSONB,
   created_at TIMESTAMP DEFAULT NOW()
 );
+
+-- Generated content (linkedin, twitter, blog) with optional visuals
+CREATE TABLE IF NOT EXISTS generated_content (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  content_type TEXT NOT NULL,          -- 'linkedin' | 'twitter' | 'blog'
+  topic TEXT NOT NULL,
+  content JSONB NOT NULL,              -- the generated text content (posts array, threads, blog object)
+  visual_url TEXT,                     -- public URL from Supabase storage bucket
+  visual_storage_path TEXT,            -- bucket object path
+  created_at TIMESTAMP DEFAULT NOW()
+);

@@ -7,9 +7,7 @@ export async function GET() {
 
     const { data, error } = await supabase
       .from("ad_creatives")
-      .select(
-        "id, platform, storage_url, storage_path, ad_angle, improvement, dimensions, iteration, metadata, created_at",
-      )
+      .select("*")
       .not("storage_url", "is", null)
       .order("created_at", { ascending: false });
 
