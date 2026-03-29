@@ -1,6 +1,6 @@
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
-const DEFAULT_MODEL = "qwen/qwen3.5-flash-02-23";
+const DEFAULT_MODEL = "google/gemini-2.5-flash-lite";
 
 interface ChatMessage {
   role: "system" | "user" | "assistant";
@@ -82,7 +82,8 @@ export async function imageCompletion(
   options: ImageGenOptions = {},
 ): Promise<string> {
   const body: Record<string, unknown> = {
-    model: options.model || IMAGE_MODEL,
+    // model: options.model || IMAGE_MODEL,
+    model: "black-forest-labs/flux.2-max",
     messages: [{ role: "user", content: prompt }],
     modalities: ["image"],
   };

@@ -16,6 +16,8 @@ import {
   Bell,
   Settings,
   Radio,
+  Image,
+  Globe,
   type LucideIcon,
 } from "lucide-react";
 
@@ -29,13 +31,15 @@ export type NavSection =
   | "email"
   | "ai-writer"
   | "ad-creatives"
+  | "ad-gallery"
   | "campaigns"
   | "meta-campaigns"
   | "google-campaigns"
   | "analytics"
   | "optimization"
   | "alerts"
-  | "integrations";
+  | "integrations"
+  | "landing-pages";
 
 interface NavGroup {
   title: string;
@@ -51,6 +55,8 @@ const NAV_GROUPS: NavGroup[] = [
       { id: "google-campaigns", label: "Google Ads (Live)", Icon: Search },
       { id: "optimization", label: "AI Optimizer", Icon: Brain },
       { id: "ad-creatives", label: "Ad Creatives", Icon: Palette },
+      { id: "ad-gallery", label: "Creatives Gallery", Icon: Image },
+      { id: "landing-pages", label: "Landing Pages", Icon: Globe },
       { id: "campaigns", label: "Campaigns", Icon: BarChart3 },
       { id: "alerts", label: "Alerts", Icon: Bell },
       { id: "integrations", label: "Integrations", Icon: Settings },
@@ -83,7 +89,7 @@ export default function Sidebar({
   alertCount,
 }: SidebarProps) {
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 min-h-screen p-4 flex flex-col shrink-0">
+    <aside className="w-64 bg-white border-r border-gray-200 h-screen sticky top-0 p-4 flex flex-col shrink-0">
       <div className="mb-6">
         <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
           <Zap className="w-5 h-5 text-yellow-600" /> ClickSpark AI

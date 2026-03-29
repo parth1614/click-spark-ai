@@ -12,6 +12,7 @@ import GEOWriter from "@/components/writers/GEOWriter";
 import EmailWriter from "@/components/writers/EmailWriter";
 import AIWriterStudio from "@/components/writers/AIWriterStudio";
 import AdCreativeGenerator from "@/components/marketing/AdCreativeGenerator";
+import AdCreativeGallery from "@/components/marketing/AdCreativeGallery";
 import CampaignManager from "@/components/marketing/CampaignManager";
 import MetaCampaigns from "@/components/marketing/MetaCampaigns";
 import GoogleCampaigns from "@/components/marketing/GoogleCampaigns";
@@ -19,6 +20,7 @@ import PerformanceAnalytics from "@/components/marketing/PerformanceAnalytics";
 import OptimizationPanel from "@/components/marketing/OptimizationPanel";
 import AlertsPanel from "@/components/marketing/AlertsPanel";
 import PlatformConnector from "@/components/marketing/PlatformConnector";
+import LandingPageBuilder from "@/components/marketing/LandingPageBuilder";
 
 const SECTIONS: Record<NavSection, React.ComponentType> = {
   pipeline: PipelineView,
@@ -30,6 +32,7 @@ const SECTIONS: Record<NavSection, React.ComponentType> = {
   email: EmailWriter,
   "ai-writer": AIWriterStudio,
   "ad-creatives": AdCreativeGenerator,
+  "ad-gallery": AdCreativeGallery,
   campaigns: CampaignManager,
   "meta-campaigns": MetaCampaigns,
   "google-campaigns": GoogleCampaigns,
@@ -37,6 +40,7 @@ const SECTIONS: Record<NavSection, React.ComponentType> = {
   optimization: OptimizationPanel,
   alerts: AlertsPanel,
   integrations: PlatformConnector,
+  "landing-pages": LandingPageBuilder,
 };
 
 export default function Home() {
@@ -57,7 +61,7 @@ export default function Home() {
   const ActiveSection = SECTIONS[section];
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
       <Sidebar active={section} onNavigate={setSection} alertCount={3} />
       <main className="flex-1 p-8 overflow-y-auto">
         <ActiveSection />

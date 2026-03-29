@@ -151,15 +151,46 @@ CREATE TABLE IF NOT EXISTS campaign_analysis (
   platforms TEXT[],
   created_at TIMESTAMP DEFAULT NOW()
 );
+
+-- Landing pages table
+CREATE TABLE IF NOT EXISTS landing_pages (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+  headline TEXT NOT NULL,
+  subheadline TEXT,
+  hero_image_url TEXT,
+  body_sections JSONB NOT NULL DEFAULT '[]',
+  lead_form_fields JSONB NOT NULL DEFAULT '[]',
+  cta_text TEXT DEFAULT 'Get Started',
+  theme_color TEXT DEFAULT '#1a73e8',
+  product_service TEXT,
+  metadata JSONB,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Lead form submissions
+CREATE TABLE IF NOT EXISTS lead_submissions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  landing_page_id UUID REFERENCES landing_pages(id) ON DELETE CASCADE,
+  form_data JSONB NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Ad creatives table
+CREATE TABLE IF NOT EXISTS ad_creatives (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  project_id UUID,
   platform TEXT NOT NULL,
   creative_type TEXT NOT NULL,
   primary_text TEXT,
   headline TEXT,
   description TEXT,
   cta TEXT,
-  media_url TEXT,
+  storage_url TEXT,        -- public URL from Supabase storage bucket
+  storage_path TEXT,       -- bucket object path for management
+  ad_angle TEXT,
+  improvement TEXT,
+  dimensions TEXT,
+  iteration INTEGER,
   metadata JSONB,
   created_at TIMESTAMP DEFAULT NOW()
 );
