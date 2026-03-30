@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import LandingPage from "@/components/LandingPage";
+import OnboardingFlow from "@/components/OnboardingFlow";
 import Sidebar, { type NavSection } from "@/components/Sidebar";
 import PipelineView from "@/components/writers/PipelineView";
 import LinkedInWriter from "@/components/writers/LinkedInWriter";
@@ -45,17 +46,32 @@ const SECTIONS: Record<NavSection, React.ComponentType> = {
 
 export default function Home() {
   const [showDashboard, setShowDashboard] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [section, setSection] = useState<NavSection>("analytics");
+  const [pendingTarget, setPendingTarget] = useState<string | undefined>();
 
   const handleEnter = (target?: string) => {
-    if (target && target in SECTIONS) {
-      setSection(target as NavSection);
-    }
-    setShowDashboard(true);
+    setPendingTarget(target);
+    setShowOnboarding(true);
   };
 
+  const handleOnboardingComplete = useCallback(() => {
+    if (pendingTarget && pendingTarget in SECTIONS) {
+      setSection(pendingTarget as NavSection);
+    }
+    setShowOnboarding(false);
+    setShowDashboard(true);
+  }, [pendingTarget]);
+
   if (!showDashboard) {
-    return <LandingPage onEnter={handleEnter} />;
+    return (
+      <>
+        <LandingPage onEnter={handleEnter} />
+        {showOnboarding && (
+          <OnboardingFlow onComplete={handleOnboardingComplete} />
+        )}
+      </>
+    );
   }
 
   const ActiveSection = SECTIONS[section];
