@@ -59,7 +59,10 @@ export async function chatCompletion(
     }
 
     const data = await res.json();
-    return data.choices[0].message.content;
+    let content = data.choices[0].message.content;
+    // Strip <think>...</think> blocks from reasoning models (e.g. Qwen)
+    content = content.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+    return content;
   } catch (err) {
     lastError = err as Error;
     console.warn(`Model ${model} failed, trying next...`, err);

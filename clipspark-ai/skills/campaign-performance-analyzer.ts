@@ -185,7 +185,7 @@ Return ONLY valid JSON matching this exact structure:
 }`;
 
   const raw = await chatCompletion([{ role: "user", content: prompt }], {
-    model: "qwen/qwen3.5-flash-02-23",
+    model: "google/gemini-2.5-flash-lite",
     jsonSchema: {
       name: "campaign_analysis",
       strict: true,

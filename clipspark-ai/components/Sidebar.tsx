@@ -53,7 +53,7 @@ const NAV_GROUPS: NavGroup[] = [
       { id: "analytics", label: "Analytics", Icon: TrendingUp },
       { id: "meta-campaigns", label: "Meta Ads (Live)", Icon: Radio },
       { id: "google-campaigns", label: "Google Ads (Live)", Icon: Search },
-      { id: "optimization", label: "AI Optimizer", Icon: Brain },
+      // { id: "optimization", label: "AI Optimizer", Icon: Brain },
       { id: "ad-creatives", label: "Ad Creatives", Icon: Palette },
       { id: "ad-gallery", label: "Creatives Gallery", Icon: Image },
       { id: "landing-pages", label: "Landing Pages", Icon: Globe },

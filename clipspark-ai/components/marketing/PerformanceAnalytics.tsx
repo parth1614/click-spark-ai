@@ -83,6 +83,7 @@ export default function PerformanceAnalytics() {
       if (data.latestAnalysis) {
         setAnalysis(data.latestAnalysis);
         setAnalysisCreatedAt(data.analysisCreatedAt);
+        setActiveTab("insights");
       }
     } catch (e) {
       console.error("Failed to load from DB:", e);
@@ -154,8 +155,14 @@ export default function PerformanceAnalytics() {
         }),
       });
       const data = await res.json();
-      if (data.analysis) setAnalysis(data.analysis);
-      else setAnalysis(null);
+      console.log("Analyze response:", JSON.stringify(data).slice(0, 200));
+      if (data.analysis) {
+        setAnalysis(data.analysis);
+        setActiveTab("insights");
+      } else {
+        console.error("No analysis in response:", data);
+        setAnalysis(null);
+      }
     } catch (e) {
       console.error(e);
     } finally {
