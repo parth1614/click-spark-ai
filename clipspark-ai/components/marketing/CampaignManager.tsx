@@ -135,7 +135,7 @@ export default function CampaignManager() {
       {showCreate && (
         <div className="bg-gray-50 rounded-xl p-5 border border-gray-200 mb-6 space-y-4">
           <h3 className="text-sm font-medium text-gray-900">Create Campaign</h3>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <input
               type="text"
               value={form.campaignName}

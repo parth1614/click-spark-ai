@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Zap,
   Briefcase,
@@ -12,12 +13,13 @@ import {
   Palette,
   BarChart3,
   TrendingUp,
-  Brain,
   Bell,
   Settings,
   Radio,
   Image,
   Globe,
+  Menu,
+  X,
   type LucideIcon,
 } from "lucide-react";
 
@@ -53,7 +55,6 @@ const NAV_GROUPS: NavGroup[] = [
       { id: "analytics", label: "Analytics", Icon: TrendingUp },
       { id: "meta-campaigns", label: "Meta Ads (Live)", Icon: Radio },
       { id: "google-campaigns", label: "Google Ads (Live)", Icon: Search },
-      // { id: "optimization", label: "AI Optimizer", Icon: Brain },
       { id: "ad-creatives", label: "Ad Creatives", Icon: Palette },
       { id: "ad-gallery", label: "Creatives Gallery", Icon: Image },
       { id: "landing-pages", label: "Landing Pages", Icon: Globe },
@@ -88,8 +89,10 @@ export default function Sidebar({
   onNavigate,
   alertCount,
 }: SidebarProps) {
-  return (
-    <aside className="w-64 bg-white border-r border-gray-200 h-screen sticky top-0 p-4 flex flex-col shrink-0">
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const NavContent = () => (
+    <>
       <div className="mb-6">
         <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
           <Zap className="w-5 h-5 text-yellow-600" /> ClickSpark AI
@@ -108,7 +111,10 @@ export default function Sidebar({
               {group.items.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => onNavigate(item.id)}
+                  onClick={() => {
+                    onNavigate(item.id);
+                    setMobileOpen(false);
+                  }}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-left ${
                     active === item.id
                       ? "bg-blue-50 text-blue-700 font-medium"
@@ -131,6 +137,47 @@ export default function Sidebar({
       <div className="pt-4 border-t border-gray-200 text-xs text-gray-500">
         One topic → 50+ content pieces
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile burger button */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="md:hidden fixed top-4 left-4 z-40 p-2 bg-white rounded-lg shadow-lg border border-gray-200"
+        aria-label="Open menu"
+      >
+        <Menu className="w-5 h-5 text-gray-900" />
+      </button>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/50 z-50"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* Mobile sidebar */}
+      <aside
+        className={`md:hidden fixed top-0 left-0 h-screen w-64 bg-white border-r border-gray-200 p-4 flex flex-col z-50 transition-transform duration-300 ${
+          mobileOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <button
+          onClick={() => setMobileOpen(false)}
+          className="absolute top-4 right-4 p-1"
+        >
+          <X className="w-5 h-5 text-gray-600" />
+        </button>
+        <NavContent />
+      </aside>
+
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex w-64 bg-white border-r border-gray-200 h-screen sticky top-0 p-4 flex-col shrink-0">
+        <NavContent />
+      </aside>
+    </>
   );
 }

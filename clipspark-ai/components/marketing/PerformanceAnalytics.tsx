@@ -245,7 +245,7 @@ export default function PerformanceAnalytics() {
           </div>
 
           {/* Summary cards */}
-          <div className="grid grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
             {[
               { label: "Total Spend", value: `₹${totalSpend.toFixed(2)}` },
               {
@@ -268,9 +268,9 @@ export default function PerformanceAnalytics() {
           </div>
 
           {/* Charts row */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
             {/* Spend by campaign bar chart */}
-            <div className="col-span-2 bg-white rounded-xl border border-gray-200 p-4">
+            <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-4">
               <p className="text-sm font-medium text-gray-700 mb-4">
                 Spend by Campaign (Top 8)
               </p>
@@ -488,7 +488,7 @@ export default function PerformanceAnalytics() {
           </div>
 
           {insightsLoading && (
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
@@ -655,7 +655,7 @@ function InsightsPanel({
           </div>
           <div className="flex-1 space-y-3">
             <p className="text-gray-800 font-medium">{s.verdict}</p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="flex items-start gap-2 p-3 bg-green-50 rounded-xl">
                 <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0 mt-0.5" />
                 <p className="text-xs text-green-700">{s.topPositive}</p>
@@ -690,7 +690,7 @@ function InsightsPanel({
       </div>
 
       {/* Positives & Negatives */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white border border-gray-200 rounded-xl p-4">
           <p className="text-sm font-semibold text-green-700 mb-3 flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4" /> What's Working
@@ -799,7 +799,7 @@ function InsightsPanel({
           <p className="text-sm font-semibold text-gray-700 mb-3">
             Metrics to Watch
           </p>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {analysis.metricsToWatch.map((m, i) => (
               <div
                 key={i}
@@ -829,7 +829,7 @@ function InsightsPanel({
           <p className="text-sm font-semibold text-gray-700 mb-3">
             Platform Breakdown
           </p>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {analysis.platformInsights.map((p, i) => (
               <div
                 key={i}
@@ -845,7 +845,7 @@ function InsightsPanel({
                     {p.campaignCount} campaigns
                   </span>
                 </div>
-                <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3 text-xs">
                   <div>
                     <span className="text-gray-400">Spend</span>
                     <p className="font-medium text-gray-800">

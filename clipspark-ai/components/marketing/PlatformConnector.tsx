@@ -260,7 +260,7 @@ export default function PlatformConnector() {
               <span className="w-5 h-5 bg-white rounded-full absolute right-0.5 top-0.5 transition-transform" />
             </button>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-gray-500 mb-1 block">
                 Min ROAS Threshold

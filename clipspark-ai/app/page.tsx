@@ -79,7 +79,7 @@ export default function Home() {
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar active={section} onNavigate={setSection} alertCount={3} />
-      <main className="flex-1 p-8 overflow-y-auto">
+      <main className="flex-1 p-4 md:p-8 overflow-y-auto pt-16 md:pt-8">
         <ActiveSection />
       </main>
     </div>

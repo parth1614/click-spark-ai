@@ -89,7 +89,7 @@ export default function AlternativeLanding() {
             >
               <motion.button
                 onClick={handleStart}
-                className="px-16 py-8 text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter text-white bg-red-600 hover:bg-red-700 transition-colors rounded-2xl"
+                className="px-8 py-4 md:px-16 md:py-8 text-3xl md:text-5xl lg:text-7xl font-black tracking-tighter text-white bg-red-600 hover:bg-red-700 transition-colors rounded-xl md:rounded-2xl"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -109,7 +109,7 @@ export default function AlternativeLanding() {
                     className="text-center w-full min-h-[5rem]"
                   >
                     {activeLine >= lineIdx && (
-                      <p className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight leading-[1.1]">
+                      <p className="text-2xl md:text-4xl lg:text-6xl xl:text-7xl font-black tracking-tight leading-[1.1]">
                         {words.map((word, wIdx) => (
                           <motion.span
                             key={wIdx}

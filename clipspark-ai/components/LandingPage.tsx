@@ -462,7 +462,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
 
             <motion.h1
               variants={fadeUp}
-              className="text-[4.5rem] md:text-[6.5rem] font-black tracking-tight leading-[0.92] text-gray-900 mb-8 max-w-5xl"
+              className="text-5xl md:text-6xl lg:text-[6.5rem] font-black tracking-tight leading-[0.92] text-gray-900 mb-8 max-w-5xl"
               style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
             >
               Run better ads.
@@ -488,7 +488,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
 
             <motion.p
               variants={fadeUp}
-              className="text-xl md:text-2xl text-gray-500 font-light max-w-2xl leading-relaxed mb-12"
+              className="text-lg md:text-xl lg:text-2xl text-gray-500 font-light max-w-2xl leading-relaxed mb-12"
             >
               ClickSpark gives your marketing team three superpowers: smarter ad
               decisions, content that compounds, and video that earns attention
@@ -534,7 +534,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
 
         {/* Hero cards */}
         <div className="w-full px-6 pb-8">
-          <div className="max-w-7xl mx-auto grid grid-cols-3 gap-4 items-stretch">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
             {PIPELINES.map((p, i) => (
               <motion.div
                 key={p.id}
@@ -548,7 +548,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
                 }}
               >
                 <motion.div
-                  className="rounded-2xl p-8 cursor-pointer flex flex-col w-full"
+                  className="rounded-2xl p-6 md:p-8 cursor-pointer flex flex-col w-full"
                   style={{
                     backgroundColor: p.lightColor,
                     borderTop: `4px solid ${p.color}`,
@@ -564,7 +564,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
                     {p.label}
                   </div>
                   <h3
-                    className="text-2xl font-black text-gray-900 mb-1"
+                    className="text-xl md:text-2xl font-black text-gray-900 mb-1"
                     style={{
                       fontFamily: "var(--font-playfair), Georgia, serif",
                     }}
@@ -676,18 +676,18 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
                   {p.label}
                 </div>
                 <h2
-                  className="text-5xl font-black tracking-tight text-gray-900 leading-tight mb-3"
+                  className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-gray-900 leading-tight mb-3"
                   style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}
                 >
                   {p.title}
                 </h2>
                 <p
-                  className="text-2xl font-semibold mb-6"
+                  className="text-xl md:text-2xl font-semibold mb-6"
                   style={{ color: p.color }}
                 >
                   {p.tagline}
                 </p>
-                <p className="text-lg text-gray-500 leading-relaxed mb-10">
+                <p className="text-base md:text-lg text-gray-500 leading-relaxed mb-10">
                   {p.description}
                 </p>
                 <MagneticButton
@@ -700,7 +700,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
               </motion.div>
 
               <motion.div
-                className="grid grid-cols-2 gap-3"
+                className="grid grid-cols-1 sm:grid-cols-2 gap-3"
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: true }}
@@ -1029,7 +1029,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
               </MagneticButton>
             </motion.div>
             <motion.div
-              className="grid grid-cols-2 gap-3"
+              className="grid grid-cols-1 sm:grid-cols-2 gap-3"
               initial="hidden"
               whileInView="show"
               viewport={{ once: true }}

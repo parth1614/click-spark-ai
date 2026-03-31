@@ -62,7 +62,7 @@ export default function SEOWriter() {
         onGenerate={generate}
         loading={loading}
       >
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <input
             type="text"
             value={keywords}
@@ -101,7 +101,7 @@ export default function SEOWriter() {
           <div className="space-y-4">
             {/* Meta info */}
             <div className="bg-gray-50 rounded-xl border border-gray-200 p-5">
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-gray-500 text-xs">Title</span>
                   <p className="text-gray-900">{article.title}</p>
@@ -158,7 +158,9 @@ export default function SEOWriter() {
             {/* FAQ Schema */}
             {article.faqSchema.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-gray-900">FAQ Schema</h3>
+                <h3 className="text-sm font-medium text-gray-900">
+                  FAQ Schema
+                </h3>
                 {article.faqSchema.map((faq, i) => (
                   <ContentCard
                     key={i}
