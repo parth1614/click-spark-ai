@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 
 interface LandingPageProps {
-  onEnter: (section?: string) => void;
+  onEnter: () => void;
 }
 
 // ── Magnetic button ──────────────────────────────────────────────────────────
@@ -416,7 +416,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
             ].map(([l, s]) => (
               <motion.button
                 key={l}
-                onClick={() => onEnter(s)}
+                onClick={() => onEnter()}
                 className="hover:text-blue-600 transition-colors font-medium"
                 whileHover={{ y: -1 }}
               >
@@ -500,20 +500,20 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
               className="flex items-center gap-4 flex-wrap mb-16"
             >
               <MagneticButton
-                onClick={() => onEnter("analytics")}
+                onClick={() => onEnter()}
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-base font-semibold text-white shadow-lg"
                 style={{ backgroundColor: "#1a73e8" }}
               >
                 Analyze my ads <ArrowRight className="w-4 h-4" />
               </MagneticButton>
               <MagneticButton
-                onClick={() => onEnter("pipeline")}
+                onClick={() => onEnter()}
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-base font-semibold border-2 border-gray-200 text-gray-700 bg-white"
               >
                 Write content
               </MagneticButton>
               <MagneticButton
-                onClick={() => onEnter("ai-writer")}
+                onClick={() => onEnter()}
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-base font-semibold border-2 border-gray-200 text-gray-700 bg-white"
               >
                 Make a video script
@@ -691,7 +691,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
                   {p.description}
                 </p>
                 <MagneticButton
-                  onClick={() => onEnter(p.section)}
+                  onClick={() => onEnter()}
                   className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-base font-semibold text-white shadow-md"
                   style={{ backgroundColor: p.color }}
                 >
@@ -724,7 +724,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
                     whileHover={{ y: -4, boxShadow: `0 8px 24px ${p.color}18` }}
                     className="p-5 rounded-2xl border border-gray-100 bg-white cursor-pointer"
                     style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
-                    onClick={() => onEnter(p.section)}
+                    onClick={() => onEnter()}
                   >
                     <div
                       className="w-9 h-9 rounded-xl flex items-center justify-center mb-3"
@@ -969,7 +969,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
                 whileHover={{ y: -6, boxShadow: `0 16px 32px ${step.color}20` }}
                 className="p-6 rounded-2xl bg-white border border-gray-100 cursor-pointer h-full"
                 style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.06)" }}
-                onClick={() => onEnter(step.section)}
+                onClick={() => onEnter()}
               >
                 <div
                   className="text-3xl font-black mb-4"
@@ -1021,7 +1021,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
                 everywhere, consistently.
               </p>
               <MagneticButton
-                onClick={() => onEnter("pipeline")}
+                onClick={() => onEnter()}
                 className="inline-flex items-center gap-2 px-7 py-3.5 rounded-full text-base font-semibold text-white shadow-md"
                 style={{ backgroundColor: "#0f9d58" }}
               >
@@ -1099,7 +1099,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
                   }}
                   className="p-5 rounded-2xl border border-gray-100 bg-white cursor-pointer"
                   style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.06)" }}
-                  onClick={() => onEnter(item.section)}
+                  onClick={() => onEnter()}
                 >
                   <item.icon
                     className="w-5 h-5 mb-3"
@@ -1185,7 +1185,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
             ].map(([l, s]) => (
               <button
                 key={l}
-                onClick={() => onEnter(s)}
+                onClick={() => onEnter()}
                 className="hover:text-gray-700 transition-colors"
               >
                 {l}

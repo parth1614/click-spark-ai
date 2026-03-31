@@ -44,12 +44,16 @@ interface CampaignRow {
 
 const PLATFORM_COLORS = { google: "#16a34a", facebook: "#2563eb" };
 
-export default function PerformanceAnalytics() {
+export default function PerformanceAnalytics({
+  defaultTab = "overview",
+}: {
+  defaultTab?: "overview" | "insights";
+}) {
   const [campaigns, setCampaigns] = useState<CampaignRow[]>([]);
   const [sources, setSources] = useState<string[]>([]);
   const [platformFilter, setPlatformFilter] = useState("all");
   const [activeTab, setActiveTab] = useState<"overview" | "insights">(
-    "overview",
+    defaultTab,
   );
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [insightsLoading, setInsightsLoading] = useState(false);

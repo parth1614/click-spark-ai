@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from "react";
 import LandingPage from "@/components/LandingPage";
-import OnboardingFlow from "@/components/OnboardingFlow";
 import Sidebar, { type NavSection } from "@/components/Sidebar";
 import PipelineView from "@/components/writers/PipelineView";
 import LinkedInWriter from "@/components/writers/LinkedInWriter";
@@ -46,32 +45,19 @@ const SECTIONS: Record<NavSection, React.ComponentType> = {
 
 export default function Home() {
   const [showDashboard, setShowDashboard] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
   const [section, setSection] = useState<NavSection>("analytics");
-  const [pendingTarget, setPendingTarget] = useState<string | undefined>();
+  const [activeTab, setActiveTab] = useState<"overview" | "insights">(
+    "insights",
+  );
 
-  const handleEnter = (target?: string) => {
-    setPendingTarget(target);
-    setShowOnboarding(true);
+  const handleEnter = () => {
+    setSection("analytics");
+    setActiveTab("insights");
+    setShowDashboard(true);
   };
 
-  const handleOnboardingComplete = useCallback(() => {
-    if (pendingTarget && pendingTarget in SECTIONS) {
-      setSection(pendingTarget as NavSection);
-    }
-    setShowOnboarding(false);
-    setShowDashboard(true);
-  }, [pendingTarget]);
-
   if (!showDashboard) {
-    return (
-      <>
-        <LandingPage onEnter={handleEnter} />
-        {showOnboarding && (
-          <OnboardingFlow onComplete={handleOnboardingComplete} />
-        )}
-      </>
-    );
+    return <LandingPage onEnter={handleEnter} />;
   }
 
   const ActiveSection = SECTIONS[section];
@@ -80,7 +66,11 @@ export default function Home() {
     <div className="flex h-screen overflow-hidden">
       <Sidebar active={section} onNavigate={setSection} alertCount={3} />
       <main className="flex-1 p-4 md:p-8 overflow-y-auto pt-16 md:pt-8">
-        <ActiveSection />
+        {section === "analytics" ? (
+          <PerformanceAnalytics defaultTab={activeTab} />
+        ) : (
+          <ActiveSection />
+        )}
       </main>
     </div>
   );
